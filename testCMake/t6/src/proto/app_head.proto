@@ -1,0 +1,6 @@
+message ClientInfo
+{
+	optional uint32 uint32_proto_version = 1;	//应用协议版本号，
+	optional uint32 b_app_data_gzip = 2;								//app数据是否gzip压缩
+}
+

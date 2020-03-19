@@ -1,0 +1,3 @@
+cpp/com/txz/music_manager/music_manager.pb.h
+test
+test1

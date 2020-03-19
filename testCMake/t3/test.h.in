@@ -1,0 +1,13 @@
+#define TUTORIAL_VARSION_MAJOR @TUTORIAL_VARSION_MAJOR@
+#define TUTORIAL_VERSION_MAJOR @TUTORIAL_VERSION_MAJOR@
+// ${VAR} 这样的必须要用 #cmakedefine 才会替换
+#define TUTORIAL_VERSION_MINOR ${TUTORIAL_VERSION_MINOR}
+#define TEST @TUTORIAL_VERSION_MAJOR@_@TEST_VER@
+// 如果加了 @ONLY 则这里不会进行替换
+#cmakedefine TEST_VAR ${TEST_VAR}
+// 这里可以证明，宏名必须和需要替换的名称一致，否则有问题
+#cmakedefine TTT @TEST_VAR@
+// 如果是define 则宏名和替换的名称可以不一致
+#define TTTDefine @TEST_VER@
+int m_iAge = 0;
+double m_dWeight =100.0;

@@ -1,0 +1,3 @@
+/home/txz/test/testCPP/t5/helloso/CMakeFiles/rebuild_cache.dir
+/home/txz/test/testCPP/t5/helloso/CMakeFiles/edit_cache.dir
+/home/txz/test/testCPP/t5/helloso/CMakeFiles/hello.dir

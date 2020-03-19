@@ -1,0 +1,28 @@
+message(STATUS ${CMAKE_CURRENT_SOURCE_DIR}/submodule)
+
+# 这里必须要指定具体的头文件名称
+FIND_PATH(HELLO_INCLUDE_DIR a.h ${CMAKE_CURRENT_SOURCE_DIR}/submodule)
+FIND_LIBRARY(HELLO_LIBRARY NAMES a PATHS ${CMAKE_CURRENT_SOURCE_DIR}/submodule)
+# 如果没有找到，则<VAR>-NOTFOUND 会有值：
+if(HELLO_INCLUDE_DIR)
+    message(STATUS "include dir success")
+endif()
+if(HELLO_INCLUDE_DIR_NOTFOUND)
+    message(STATUS "include dir error")
+endif()
+if(HELLO_LIBRARY)
+    message(STATUS "library success")
+endif()
+if(HELLO_INCLUDE_DIR AND HELLO_LIBRARY)
+    set(HELLO_FOUND TRUE)
+endif()
+
+if(HELLO_FOUND)
+    if(NOT HELLO_FIND_QUIETLY)
+        MESSAGE(STATUS "FOUND HELLO :${HELLO_LIBRARY}")
+    endif()
+else()
+    if(HELLO_FOUND_REQUIRED)
+        message(FATAL_ERROR "cound not find hello library")
+    endif()
+endif()

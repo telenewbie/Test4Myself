@@ -5,7 +5,7 @@ CC = gcc                        # compiler to use
 LINKERFLAG = -lm
 
 SRCS := $(wildcard *.c)
-BINS := $(SRCS:%.c=%)
+BINS := $(SRCS:%.c=%) # 变量的替换
 
 all: ${BINS}
 

@@ -1,0 +1,22 @@
+
+#SRCS := main.c test.c
+SRCS := $(wildcard *.c)
+#OBJS := $(patsubst %.c,%.o,$(SRCS))
+OBJS := $(SRCS:.c=.o)
+SRCS_DEPS := $(patsubst %.c,.%.o.d,$(SRCS))
+
+main:$(OBJS)
+	@echo $(SRCS_DEPS)
+	$(CC) -o $@ $^
+
+%.o:%.c
+	$(CC) -c $< -o $@  -MD -MF "$(dir $@).$(notdir $@).d" -MT $@
+
+.PHONY:clean
+clean:
+	@echo "clean"
+	-@rm -rf *.o
+	-@rm main
+	@echo "what"
+	@$(RM) $(SRCS_DEPS)
+-include $(SRCS_DEPS)

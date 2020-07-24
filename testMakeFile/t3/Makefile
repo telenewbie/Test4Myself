@@ -33,6 +33,10 @@ content :=$(shell pwd)
 t1:
 	@echo ${content}
 	@echo $$(pwd)
+	@echo $$(ls |grep hello)
+	@echo `pwd`
+	@echo `ls|grep hello`
+	ls |grep hello
 
 t2:
 	-@if [ x = x"${xx}" ] ; then \

@@ -17,3 +17,4 @@ testkotlin/.gradle/
 testkotlin/.idea/
 testCMake/t13/build
 .vscode/
+cmake-build-debug/

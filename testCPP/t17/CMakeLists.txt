@@ -1,4 +1,5 @@
 
 set(SRC "main.cpp")
 
-add_executable(t1 ${SRC})
+set(CMAKE_CXX_STANDARD 11)
+add_executable(t17 ${SRC})

@@ -1,5 +1,5 @@
 
-set(SRC "main.cpp")
+set(SRC main.cpp ElevocLicense.c)
 
 set(CMAKE_CXX_STANDARD 11)
-add_executable(t17 ${SRC})
+add_executable(t18 ${SRC})

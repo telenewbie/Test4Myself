@@ -18,13 +18,12 @@ using namespace std;
 #define NAME "44100_c1_b16"
 #define FILE_NAME (NAME ".pcm")
 #define OUT_FILE_NAME (NAME "_out.pcm")
-#define OUT_REBACK_FILE_NAME (NAME "_out_reback.pcm")
-//#define IN_FRAME_SIZE_10ms  ((IN_SAMPLE*IN_CHANNEL*IN_BIT/8)*10/1000)
+#define OUT_REBACK_FILE_NAME (NAME "_out_back.pcm")
 
 int resample(int oSampleRate, int dSampleRate, char *readFileName, char *writeFileName, int pre_frame_size) {
     cout << readFileName << "::" << writeFileName << endl;
     int err = 0;
-    SpeexResamplerState *resampler44t48_in = elevoc_resampler_init(1, oSampleRate, dSampleRate, 9, &err);
+    SpeexResamplerState *resampler44t48_in = elevoc_resampler_init(IN_CHANNEL, oSampleRate, dSampleRate, 9, &err);
     if (resampler44t48_in != NULL) {
         elevoc_resampler_set_rate(resampler44t48_in, oSampleRate, dSampleRate);
     } else {
@@ -47,7 +46,7 @@ int resample(int oSampleRate, int dSampleRate, char *readFileName, char *writeFi
     int count = 0;
     do {
         int reminder = pre_frame_size;
-        while ((count = fread(input, 1, reminder, fp)) > 0) {
+        while ((count = fread(input+(pre_frame_size-reminder), 1, reminder, fp)) > 0) {
             reminder -= count;
             if (reminder == 0) {
                 break;
@@ -58,16 +57,13 @@ int resample(int oSampleRate, int dSampleRate, char *readFileName, char *writeFi
         if (reminder == pre_frame_size && count <= 0) {
             break;
         }
-        unsigned int in_len = pre_frame_size - reminder;
-        unsigned int out_len = pre_frame_size * 2;
+        unsigned int in_len = (pre_frame_size - reminder)/2;
+        unsigned int out_len = pre_frame_size;
         cout << "in_len=" << in_len << ",out_len=" << out_len << endl;
         elevoc_resampler_process_int(resampler44t48_in, 0, (short *) input, &in_len, (short *) output, &out_len);
         cout << "out_len=" << out_len << endl;
-        for(int i = 0 ; i < out_len; ++i){
-            printf(" %x",output[i]);
-        }
         printf("\n");
-        size_t writelen = fwrite(output, 1, out_len, fpw);
+        size_t writelen = fwrite(output, 2, out_len, fpw);
         cout << out_len << ":::" << writelen << endl;
     } while (true);
 
@@ -84,5 +80,5 @@ int resample(int oSampleRate, int dSampleRate, char *readFileName, char *writeFi
 int main() {
     resample(SAMPLE_RATE_441k, SAMPLE_RATE_48k, FILE_NAME, OUT_FILE_NAME,
              ((SAMPLE_RATE_441k * IN_CHANNEL * IN_BIT / 8) * 10 / 1000));
-//    resample(SAMPLE_RATE_48k, SAMPLE_RATE_441k, OUT_FILE_NAME, OUT_REBACK_FILE_NAME, ((SAMPLE_RATE_48k*IN_CHANNEL*IN_BIT/8)*10/1000));
+    resample(SAMPLE_RATE_48k, SAMPLE_RATE_441k, OUT_FILE_NAME, OUT_REBACK_FILE_NAME, ((SAMPLE_RATE_48k*IN_CHANNEL*IN_BIT/8)*10/1000));
 }

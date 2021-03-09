@@ -44,10 +44,9 @@ DataMsg *MsgCreator::create(int sampleNum, int sampleRate, int channel, int byte
     msg->index = 0;
     msg->sample_num = sampleNum;
     msg->inSampleRate = sampleRate;
-    msg->outSampleRate = msg->inSampleRate;
+    msg->outSampleRate = RESAMPLE_OUT_RATE;
     msg->channel = channel;
     msg->bytesPerSample = bytesPerSample;
-    LOGD("msg index:%d[%p][sampleRate:%d,channel:%d,bytesPerSample:%d]",index,msg,msg->outSampleRate,msg->channel,msg->bytesPerSample);
     return msg;
 }
 

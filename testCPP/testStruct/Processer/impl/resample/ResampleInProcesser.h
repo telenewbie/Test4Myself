@@ -8,6 +8,7 @@
 
 #include <BaseProcesser.h>
 #include "BaseResample.h"
+#include "SpeexResamplerAdapter.h"
 
 
 
@@ -15,15 +16,17 @@
 class ResampleInProcesser : public BaseProcesser {
     int getMsgIndex() override;
 
-    void process(DataMsg*) override;
+    void process(DataMsg *) override;
 
     bool canProcess(DataMsg *) override;
 
     ~ResampleInProcesser();
-    void initResample(SpeexResamplerState **,DataMsg *mMsg);
+
+    void initResample(SpeexResamplerState **, DataMsg *mMsg);
 
 public:
     virtual std::string getTag();
+
     ResampleInProcesser();
 
 private:
@@ -37,8 +40,12 @@ private:
 //
 //    RESAMPLE_METHOD(far);
 
-    SpeexResamplerState *mSpeexResamplerState = nullptr;
-    SpeexResamplerState *mSpeexResamplerRef = nullptr;
+    BaseResampleAdapter *resampleNear = nullptr;
+    BaseResampleAdapter *resampleFar = nullptr;
+
+
+//    SpeexResamplerState *mSpeexResamplerState = nullptr;
+//    SpeexResamplerState *mSpeexResamplerRef = nullptr;
 
     char input_resampler_buffer[MAX_FRAME_BYTE_SIZE];
     char far_resampler_buffer[MAX_FRAME_BYTE_SIZE];

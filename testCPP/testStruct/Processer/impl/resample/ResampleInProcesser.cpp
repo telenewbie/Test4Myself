@@ -9,69 +9,30 @@
 static FILE *fpMic = nullptr;
 static FILE *fpRef = nullptr;
 
+
+using RESAMPLE_TYPE = SpeexResamplerAdapter;
+
 int ResampleInProcesser::getMsgIndex() {
     return PORI_RESAMPLE_IN;
 }
 
 
-void ResampleInProcesser::process(DataMsg* msg) {
-//return ;
+void ResampleInProcesser::process(DataMsg *msg) {
 
-    if (mSpeexResamplerState == nullptr) {
-        initResample(&mSpeexResamplerState, msg);
+    if (resampleFar->ptr == nullptr) {
+        resampleFar->initSample(msg->channel, msg->inSampleRate, msg->outSampleRate);
     }
-    if (mSpeexResamplerRef == nullptr) {
-        initResample(&mSpeexResamplerRef, msg);
+    if (resampleNear->ptr == nullptr) {
+        resampleNear->initSample(msg->channel, msg->inSampleRate, msg->outSampleRate);
     }
-    msg->outSampleRate = SAMPLE_RATE_16k;
-#ifdef TEST_FLOAT_BYTE
 
-    float *pinput = (float *) msg->micBuff;
-    float *pinput_resampler = (float *) input_resampler_buffer;
-    unsigned int in_len = msg->inSampleRate / 100;
-    unsigned int out_len = msg->outSampleRate / 100;
+    resampleNear->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, msg->sample_num);
 
-    elevoc_resampler_process_float(
-            mSpeexResamplerState,
-            0, pinput, &in_len, pinput_resampler, &out_len);
-    memcpy(pinput, pinput_resampler, sizeof(float) * out_len);
+    resampleFar->resampler_process(msg->refBuff, msg->sample_num, msg->refBuff, msg->sample_num);
 
-    msg->len = sizeof(float) * out_len;
-    // far
-    float *pfarinput = (float *) msg->refBuff;
-    float *pfarinput_resampler = (float *) far_resampler_buffer;
-    elevoc_resampler_process_float(
-            mSpeexResamplerRef,
-            0, pfarinput, &in_len, pfarinput_resampler, &out_len);
-    memcpy(pfarinput, pfarinput_resampler, sizeof(float) * out_len);
-
-#else
-
-    short *pinput = msg->micBuff;
-    auto *pinput_resampler = (short *) input_resampler_buffer;
-    unsigned int in_len = msg->inSampleRate / 100; // 总长 = 10ms数据* sizeof(short) / sizeof(short)
-    unsigned int out_len = msg->outSampleRate / 100;
-
-    elevoc_resampler_process_int(
-            mSpeexResamplerState,
-            0, pinput, &in_len, msg->micBuff, &out_len);
-//    memcpy(msg->proMicBuff, pinput_resampler, sizeof(short) * out_len);
-
-    // far
-    short *pfarinput =  msg->refBuff;
-    auto *pfarinput_resampler = (short *) far_resampler_buffer;
-    elevoc_resampler_process_int(
-            mSpeexResamplerRef,
-            0, pfarinput, &in_len, msg->refBuff, &out_len);
-//    memcpy(msg->proRefBuff, pfarinput_resampler, sizeof(short) * out_len);
-
-    //msg->len = sizeof(short) * out_len;
-    msg->sample_num = out_len;
-#endif
     // 输出
-    std::fwrite(msg->micBuff, sizeof(short ), msg->sample_num, fpMic);
-    std::fwrite(msg->refBuff, sizeof(short ), msg->sample_num, fpRef);
-
+    std::fwrite(msg->micBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpMic);
+    std::fwrite(msg->refBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpRef);
 }
 
 bool ResampleInProcesser::canProcess(DataMsg *msg) {
@@ -82,14 +43,22 @@ bool ResampleInProcesser::canProcess(DataMsg *msg) {
 ResampleInProcesser::ResampleInProcesser() {
     fpMic = std::fopen(TEST_PCM_DIR "mic_resample_in.pcm", "wb+");
     fpRef = std::fopen(TEST_PCM_DIR "ref_resample_in.pcm", "wb+");
+    if (resampleFar == nullptr) {
+        resampleFar = new RESAMPLE_TYPE();
+    }
+    if (resampleNear == nullptr) {
+        resampleNear = new RESAMPLE_TYPE();
+    }
 }
 
 ResampleInProcesser::~ResampleInProcesser() {
-    if (mSpeexResamplerState != nullptr) {
-        elevoc_resampler_destroy(mSpeexResamplerState);
+    if (resampleFar) {
+        resampleFar->release();
+        delete (RESAMPLE_TYPE *) resampleFar;
     }
-    if (mSpeexResamplerRef != nullptr) {
-        elevoc_resampler_destroy(mSpeexResamplerRef);
+    if (resampleNear) {
+        resampleNear->release();
+        delete (RESAMPLE_TYPE *) resampleNear;
     }
     std::fclose(fpRef);
     std::fclose(fpMic);

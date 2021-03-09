@@ -24,8 +24,8 @@
 
 #endif
 
-#define SLEEP_TIME_MILLISECOND 4
-#define MAIN_SLEEP_TIME 60
+#define SLEEP_TIME_MILLISECOND 2
+#define MAIN_SLEEP_TIME 30
 #include "TEST_CONSTANT.h"
 FILE* log_fp;
 void readRefFile() {
@@ -85,8 +85,8 @@ int main() {
 //    EventCenter::getInstance()->addRegister(new WorldProcesser());
 #ifndef USE_ENGINE
     EventCenter::getInstance()->addRegister(new ResampleInProcesser());
-    EventCenter::getInstance()->addRegister(new AECProcesser());
-    EventCenter::getInstance()->addRegister(new DnnProcesser());
+//    EventCenter::getInstance()->addRegister(new AECProcesser());
+//    EventCenter::getInstance()->addRegister(new DnnProcesser());
     EventCenter::getInstance()->addRegister(new ResampleOutProcesser());
 #else
     EventCenter::getInstance()->addRegister(new EngineProcesser());

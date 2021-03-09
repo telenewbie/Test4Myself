@@ -12,7 +12,10 @@
 #define SAMPLE_RATE_441k 44100
 #define MAX_FRAME_BYTE_SIZE (48*10 *2) // 需要被修改 成具体的
 #include "ElevocLog.h"
-#include "speex_resampler.h"
+#include "Processer/impl/resample/speex/speex_resampler.h"
+
+
+
 
 #if 0
 #define INIT_RESAMPLE(inChannel, inSampleRate, outSampleRate) \

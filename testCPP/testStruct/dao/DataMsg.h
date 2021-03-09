@@ -14,7 +14,7 @@ public:
     void init();// required
 
     int index;
-    int sample_num; //
+    uint32_t sample_num; //
     TYPE_SAMPLE_t *micBuff = nullptr; //
     TYPE_SAMPLE_t *refBuff = nullptr;
 

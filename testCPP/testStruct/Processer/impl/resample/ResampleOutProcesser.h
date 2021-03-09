@@ -8,7 +8,7 @@
 
 #include <Processer/BaseProcesser.h>
 #include "BaseResample.h"
-
+#include "BaseResampleAdapter.h"
 
 class ResampleOutProcesser : public BaseProcesser {
     int getMsgIndex() override;
@@ -17,11 +17,14 @@ class ResampleOutProcesser : public BaseProcesser {
 
     bool canProcess(DataMsg *) override;
 
-    SpeexResamplerState *mSpeexResamplerState = nullptr;
+    BaseResampleAdapter *resampleAdapter = nullptr;
+
     char input_resampler_buffer[MAX_FRAME_BYTE_SIZE];
 public:
     virtual std::string getTag() override;
+
     ResampleOutProcesser();
+    ~ResampleOutProcesser();
 };
 
 

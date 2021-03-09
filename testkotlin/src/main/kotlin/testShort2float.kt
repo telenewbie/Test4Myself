@@ -1,0 +1,2 @@
+class testShort2float {
+}

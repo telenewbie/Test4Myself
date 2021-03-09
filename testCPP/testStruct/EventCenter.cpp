@@ -23,7 +23,7 @@ void EventCenter::send(DataMsg *msg) {
         return;
     }
     uint32_t key = msg->getId();
-    LOGD("get msg:[msg=%p][id = %d]%d",msg, key, msg->index);
+    LOGD("send msg:[msg=%p][id = %d]%d,sampleRate:%d",msg, key, msg->index,msg->outSampleRate);
     if(msg->index>=mProcessers.size()){
         MsgCreator::getInstance()->destroyMsg(msg);
     }else{

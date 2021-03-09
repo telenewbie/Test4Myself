@@ -27,12 +27,12 @@ void BaseProcesser::innerProcess() {
     while (!mIsRelease) {
         mWaitCond.wait(lk, [&]() -> bool { return !mVecMsg.empty(); });
         DataMsg* curMsg = mVecMsg.front();
-        LOGD("BaseProcesser obtain:%p[id=%d,index=%d]",curMsg,curMsg->getId(),curMsg->index);
+        mVecMsg.pop();
+        LOGD("%s obtain:%p[id=%d,index=%d,sampleRate:%d]",getTag().data(),curMsg,curMsg->getId(),curMsg->index,curMsg->outSampleRate);
         if (canProcess(curMsg)) {
             process(curMsg);
         }
         onNext(curMsg);
-        mVecMsg.pop();
     }
 }
 
@@ -41,7 +41,7 @@ void BaseProcesser::release() {
 }
 
 void BaseProcesser::notify(DataMsg *msg) {
-    LOGD("BaseProcesser notify:%p[id=%d,index=%d]",msg,msg->getId(),msg->index);
+    LOGD("%s notify:%p[id=%d,index=%d,sampleRate:%d]",getTag().data(),msg,msg->getId(),msg->index, msg->outSampleRate);
         mVecMsg.push(msg);
         mWaitCond.notify_one();
 //    } else {

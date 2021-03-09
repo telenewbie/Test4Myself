@@ -28,10 +28,12 @@ void ProcessCenter::start() {
         // 获取一帧数据
 
         DataMsg *msg = MsgCreator::getInstance()->create(readSampleNum, mSampleRate, mChannel, mBytePerSample);
-        int readLen = MyMicBuffer::getInstance()->read((char*)msg->micBuff, size);
-        MyRefBuffer::getInstance()->read((char*)msg->refBuff, size);
+        LOGD("ProcessCenter msg:[%p]%d:%d:%d",msg,msg->inSampleRate,msg->outSampleRate,mBytePerSample);
+        int readLen = MyMicBuffer::getInstance()->read((char *) msg->micBuff, size);
+        MyRefBuffer::getInstance()->read((char *) msg->refBuff, size);
 
-        LOGD("[%s]read size:%d",__FILE__,readLen);
+        LOGD("ProcessCenter msg:[%p]%d:%d:%d",msg,msg->inSampleRate,msg->outSampleRate,mBytePerSample);
+//        LOGD("[%s]read size:%d", __FILE__, readLen);
         //转float
 //        convertFloatToShort()
 //        convertByteToFloat(readMicBuffer, readLen, msg->micBuff, msg->sampleLen, DEFAULT);
@@ -65,6 +67,7 @@ ProcessCenter::~ProcessCenter() {
 }
 
 void ProcessCenter::init(int sampleRate, int channel, int bytePerSample) {
+    LOGD("ProcessCenter init:%d,%d,%d", sampleRate, channel, bytePerSample);
     mSampleRate = sampleRate;
     mChannel = channel;
     mBytePerSample = bytePerSample;

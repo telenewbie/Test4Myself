@@ -6,7 +6,7 @@
 #include "DnnProcesser.h"
 #include "EVProcessEnumType.h"
 #include "ProcesserPori.h"
-
+#include "ElevocLog.h"
 
 FILE* fpdnn = nullptr;
 
@@ -17,6 +17,7 @@ int DnnProcesser::getMsgIndex() {
 void DnnProcesser::process(DataMsg* msg) {
 
     if (feature.sample_rate != msg->outSampleRate) {
+        LOGI("%s,feature sample rate:%d,msg sample Rate:%d",getTag().data(),feature.sample_rate,msg->outSampleRate);
         feature_reset(&feature, msg->outSampleRate);
         synthetic_reset(&synthetic, msg->outSampleRate);
         dnn_ns_reset(&ns, msg->outSampleRate);

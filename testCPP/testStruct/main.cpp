@@ -24,7 +24,8 @@
 
 #endif
 
-#define SLEEP_TIME_MILLISECOND 1
+#define SLEEP_TIME_MILLISECOND 4
+#define MAIN_SLEEP_TIME 60
 #include "TEST_CONSTANT.h"
 FILE* log_fp;
 void readRefFile() {
@@ -108,7 +109,7 @@ int main() {
     }
 #endif
     std::cout<<"over"<<std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(30));
+    std::this_thread::sleep_for(std::chrono::seconds(MAIN_SLEEP_TIME));
 
 
 #ifdef LOG_RELEASE

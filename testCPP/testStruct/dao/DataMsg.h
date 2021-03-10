@@ -15,6 +15,7 @@ public:
 
     int index;
     uint32_t sample_num; //
+    uint32_t buff_size; //
     TYPE_SAMPLE_t *micBuff = nullptr; //
     TYPE_SAMPLE_t *refBuff = nullptr;
 

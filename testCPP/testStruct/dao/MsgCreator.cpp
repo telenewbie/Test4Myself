@@ -43,6 +43,7 @@ DataMsg *MsgCreator::create(int sampleNum, int sampleRate, int channel, int byte
     msg->init();
     msg->index = 0;
     msg->sample_num = sampleNum;
+    msg->buff_size = sampleNum * bytesPerSample;
     msg->inSampleRate = sampleRate;
     msg->outSampleRate = RESAMPLE_OUT_RATE;
     msg->channel = channel;

@@ -20,7 +20,10 @@ void ResampleOutProcesser::process(DataMsg *msg) {
         resampleAdapter->initSample(msg->channel, msg->outSampleRate, msg->inSampleRate);
     }
 
-    resampleAdapter->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, msg->sample_num);
+    uint32_t out_len = msg->buff_size / msg->bytesPerSample;
+    resampleAdapter->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, out_len);
+
+    msg->sample_num = out_len;
 
     std::fwrite(msg->micBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpMic);
 }
@@ -35,7 +38,7 @@ ResampleOutProcesser::ResampleOutProcesser() {
 }
 
 std::string ResampleOutProcesser::getTag() {
-    return "ResampleOutProcesser";
+    return "ResampleOutProcessor";
 }
 
 ResampleOutProcesser::~ResampleOutProcesser() {

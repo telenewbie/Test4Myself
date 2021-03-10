@@ -8,7 +8,8 @@
 #include <inttypes.h>
 
 //#define TELENEWBIE_44100_c1_b24
-#define TELENEWBIE_48000_c2_b16
+//#define TELENEWBIE_48000_c2_b16
+#define TELENEWBIE_48000_c1_f32
 #define RESAMPLE_OUT_RATE 16000
 
 
@@ -19,6 +20,13 @@
 #define TEST_SAMPLE_RATE 48000
 #define TEST_CHANNEL 2
 typedef int16_t TYPE_SAMPLE_t;
+#elif defined(TELENEWBIE_48000_c1_f32)
+#define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
+#define TEST_PCM_NAME "48000_c1_f32_mic"
+#define TEST_REF_PCM_NAME "48000_c1_f32_ref"
+#define TEST_SAMPLE_RATE 48000
+#define TEST_CHANNEL 1
+typedef float TYPE_SAMPLE_t;
 #elif defined(TELENEWBIE_44100_c1_b24)
 #define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
 #define TEST_PCM_NAME "44100_c1_24b_near"
@@ -29,7 +37,7 @@ typedef float TYPE_SAMPLE_t;
 #else
 #define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
 #define TEST_PCM_NAME "b-o-audio_near"
-#define TEST_REF_PCM_NAME "b-o-audio_far" // 16000_c1_16b.pcm
+#define TEST_REF_PCM_NAME "b-o-audio_far"
 #endif
 
 

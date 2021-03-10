@@ -25,7 +25,7 @@
 #endif
 
 #define SLEEP_TIME_MILLISECOND 2
-#define MAIN_SLEEP_TIME 30
+#define MAIN_SLEEP_TIME 5
 #include "TEST_CONSTANT.h"
 FILE* log_fp;
 void readRefFile() {

@@ -26,9 +26,10 @@ void ResampleInProcesser::process(DataMsg *msg) {
         resampleNear->initSample(msg->channel, msg->inSampleRate, msg->outSampleRate);
     }
 
-    resampleNear->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, msg->sample_num);
-
-    resampleFar->resampler_process(msg->refBuff, msg->sample_num, msg->refBuff, msg->sample_num);
+    uint32_t sampleNum = msg->sample_num;
+    resampleNear->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, sampleNum);
+    resampleFar->resampler_process(msg->refBuff, msg->sample_num, msg->refBuff, sampleNum);
+    msg->sample_num = sampleNum;
 
     // 输出
     std::fwrite(msg->micBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpMic);

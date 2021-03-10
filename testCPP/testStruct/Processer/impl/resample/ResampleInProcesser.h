@@ -13,6 +13,7 @@
 
 
 // 重采成16k，可以做成一个序列，依次插入 EventCenter 中
+// 注意 只能从高的采样率 往低的采样率 转，而不能从  低的采样率往高的转，因为 需要 根据 outlen 来判断是否 有足够的空间来盛放数据
 class ResampleInProcesser : public BaseProcesser {
     int getMsgIndex() override;
 

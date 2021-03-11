@@ -9,8 +9,12 @@
 
 //#define TELENEWBIE_44100_c1_b24
 //#define TELENEWBIE_48000_c2_b16
-#define TELENEWBIE_48000_c1_f32
+//#define TELENEWBIE_48000_c1_f32
+#define TELENEWBIE_48000_c4_f32
 #define RESAMPLE_OUT_RATE 16000
+#define FRAME_TIME_MILLISECOND 10
+
+#define DEBUG_FILE
 
 
 #if defined(TELENEWBIE_48000_c2_b16)
@@ -20,12 +24,22 @@
 #define TEST_SAMPLE_RATE 48000
 #define TEST_CHANNEL 2
 typedef int16_t TYPE_SAMPLE_t;
+#elif defined(TELENEWBIE_48000_c4_f32)
+#define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
+#define TEST_PCM_NAME "48000_c4_f32_near"
+#define TEST_REF_PCM_NAME ""
+//#define TEST_REF_PCM_NAME "48000_c2_f32_far"
+#define TEST_SAMPLE_RATE 48000
+#define CHANNEL_MIC 4
+#define CHANNEL_REF 0
+typedef float TYPE_SAMPLE_t;
 #elif defined(TELENEWBIE_48000_c1_f32)
 #define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
 #define TEST_PCM_NAME "48000_c1_f32_mic"
 #define TEST_REF_PCM_NAME "48000_c1_f32_ref"
 #define TEST_SAMPLE_RATE 48000
-#define TEST_CHANNEL 1
+#define CHANNEL_MIC 1
+#define CHANNEL_REF 1
 typedef float TYPE_SAMPLE_t;
 #elif defined(TELENEWBIE_44100_c1_b24)
 #define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
@@ -40,14 +54,15 @@ typedef float TYPE_SAMPLE_t;
 #define TEST_REF_PCM_NAME "b-o-audio_far"
 #endif
 
-
+#define MAX_CHANNEL (CHANNEL_MIC+CHANNEL_REF)
 
 //#define TEST_BytePerSample 2
 
 //#define TEST_FLOAT_BYTE
 
-#define READ_SIZE (TEST_SAMPLE_RATE/100*sizeof(TYPE_SAMPLE_t))
-
+#define FRAME_SIZE_ONE (TEST_SAMPLE_RATE/1000*FRAME_TIME_MILLISECOND)
+#define READ_MIC_SIZE (TEST_SAMPLE_RATE/1000*FRAME_TIME_MILLISECOND*sizeof(TYPE_SAMPLE_t)*(CHANNEL_MIC))
+#define READ_REF_SIZE (TEST_SAMPLE_RATE/1000*FRAME_TIME_MILLISECOND*sizeof(TYPE_SAMPLE_t)*(CHANNEL_REF))
 
 
 //#define TEST_PCM_NAME "48000_c1_16" // 16000_c1_16b.pcm

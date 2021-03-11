@@ -6,33 +6,34 @@
 #include "../EventCenter.h"
 #include <ElevocLog.h>
 
-void BaseProcesser::onNext(DataMsg * msg) {
+void BaseProcesser::onNext(DataMsg *msg) {
     // 打包
     if (msg != nullptr) {
         ++msg->index;
-
         // 发包吧！！！
         EventCenter::getInstance()->send(msg);
     }
 }
 
 void BaseProcesser::start() {
-
-    mProcessThread = std::thread(&BaseProcesser::innerProcess, this);
-    mProcessThread.detach();
+    if (mNeedNewThread) {
+        mProcessThread = std::thread(&BaseProcesser::innerProcess, this);
+        mProcessThread.detach();
+    }
 }
 
 void BaseProcesser::innerProcess() {
     std::unique_lock<std::mutex> lk(mMutex);
     while (!mIsRelease) {
-        mWaitCond.wait(lk, [&]() -> bool { return !mVecMsg.empty(); });
-        DataMsg* curMsg = mVecMsg.front();
-        mVecMsg.pop();
-        LOGD("%s obtain:%p[id=%d,index=%d,sampleRate:%d]",getTag().data(),curMsg,curMsg->getId(),curMsg->index,curMsg->outSampleRate);
-        if (canProcess(curMsg)) {
-            process(curMsg);
+        mWaitCond.wait(lk, [&]() -> bool { return mIsRelease || !mVecMsg.empty(); });
+
+        if (!mIsRelease && mVecMsg.size() > 0) {
+            DataMsg *curMsg = mVecMsg.front();
+            mVecMsg.pop();
+            dispose(curMsg);
+        } else {
+            LOGD("%s get nothing,maybe release![%s]", getTag().data(), mIsRelease ? " is release" : " is empty");
         }
-        onNext(curMsg);
     }
 }
 
@@ -41,14 +42,14 @@ void BaseProcesser::release() {
 }
 
 void BaseProcesser::notify(DataMsg *msg) {
-    LOGD("%s notify:%p[id=%d,index=%d,sampleRate:%d]",getTag().data(),msg,msg->getId(),msg->index, msg->outSampleRate);
+    LOGD("%s notify:%p[id=%d,index=%d,sampleRate:%d,sample_num:%d]", getTag().data(), msg, msg->getId(), msg->index,
+         msg->outSampleRate, msg->sample_num);
+    if (mNeedNewThread) {
         mVecMsg.push(msg);
         mWaitCond.notify_one();
-//    } else {
-//        LOGD("[%p][%s][id=%d,index=%d]not process",msg,getTag().data(),msg->getId(),msg->index);
-////        mCurMsg = msg;
-//        onNext(msg);
-//    }
+    } else {
+        dispose(msg);
+    }
 }
 
 bool BaseProcesser::canProcess(DataMsg *) {
@@ -58,3 +59,36 @@ bool BaseProcesser::canProcess(DataMsg *) {
 bool BaseProcesser::needTransport() {
     return true;
 }
+
+
+void BaseProcesser::dispose(DataMsg *msg) {
+    if (!msg) {
+        LOGE("%s,cant dispose this", getTag().data());
+        return;
+    }
+    LOGD("%s dispose:%p[id=%d,index=%d,sampleRate:%d,sample_num:%d]", getTag().data(), msg, msg->getId(), msg->index,
+         msg->outSampleRate, msg->sample_num);
+    if (canProcess(msg)) {
+        process(msg);
+    }
+    onNext(msg);
+}
+
+BaseProcesser::BaseProcesser(const ProcessorConfig *cfg) {
+    mNeedNewThread = cfg->mNeedThread;
+}
+
+BaseProcesser::BaseProcesser(const BaseProcesser &processer_) {
+    mNeedNewThread = processer_.mNeedNewThread;
+}
+
+BaseProcesser::~BaseProcesser() {
+    release();
+}
+
+BaseProcesser &BaseProcesser::operator=(const BaseProcesser &cfg) {
+    mNeedNewThread = cfg.mNeedNewThread;
+    return *this;
+}
+
+

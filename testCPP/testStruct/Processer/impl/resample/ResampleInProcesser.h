@@ -9,7 +9,7 @@
 #include <BaseProcesser.h>
 #include "BaseResample.h"
 #include "SpeexResamplerAdapter.h"
-
+#include "DumpFileUtil.h"
 
 
 // 重采成16k，可以做成一个序列，依次插入 EventCenter 中
@@ -22,34 +22,28 @@ class ResampleInProcesser : public BaseProcesser {
     bool canProcess(DataMsg *) override;
 
     ~ResampleInProcesser();
+//    // 拷贝构造
+//    ResampleInProcesser(const ResampleInProcesser&);
+//    // 赋值
+//    ResampleInProcesser& operator=(const ResampleInProcesser&);
 
     void initResample(SpeexResamplerState **, DataMsg *mMsg);
 
 public:
     virtual std::string getTag();
 
-    ResampleInProcesser();
+    ResampleInProcesser(ProcessorConfig *);
 
 private:
-//    STATEMENT_RESAMPLE(SAMPLE_RATE_441k, SAMPLE_RATE_16k);
-//    STATEMENT_RESAMPLE(SAMPLE_RATE_32k, SAMPLE_RATE_16k);
-//    STATEMENT_RESAMPLE(SAMPLE_RATE_48k, SAMPLE_RATE_16k);
-//
-//    RESAMPLE_METHOD(in);
-//
-//    RESAMPLE_METHOD(out);
-//
-//    RESAMPLE_METHOD(far);
+    bool checkDataVerify(DataMsg *msg);
 
-    BaseResampleAdapter *resampleNear = nullptr;
-    BaseResampleAdapter *resampleFar = nullptr;
+    BaseResampleAdapter *resampleNears[MAX_CHANNEL] = {0};
+    BaseResampleAdapter *resampleFars[MAX_CHANNEL] = {0};
 
-
-//    SpeexResamplerState *mSpeexResamplerState = nullptr;
-//    SpeexResamplerState *mSpeexResamplerRef = nullptr;
-
-    char input_resampler_buffer[MAX_FRAME_BYTE_SIZE];
-    char far_resampler_buffer[MAX_FRAME_BYTE_SIZE];
+#ifdef DEBUG_FILE
+    DumpFileUtil *dumpFile = nullptr;
+#endif
+//    char far_resampler_buffer[MAX_FRAME_BYTE_SIZE];
 };
 
 

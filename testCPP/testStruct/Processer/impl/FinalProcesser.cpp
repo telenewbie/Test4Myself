@@ -20,7 +20,7 @@ void FinalProcesser::process(DataMsg* msg) {
     std::fwrite(msg->micBuff, sizeof(short), msg->sample_num, fpw);
 }
 
-FinalProcesser::FinalProcesser() {
+FinalProcesser::FinalProcesser(ProcessorConfig* cfg):BaseProcesser(cfg) {
     fpw = std::fopen(TEST_PCM_OUT_PATH, "wb+");
 }
 

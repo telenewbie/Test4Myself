@@ -16,7 +16,7 @@ private:
 public:
     static MsgCreator *getInstance();
 
-    DataMsg *create(int len, int sampleRate, int channel, int bytesPerSample);
+    DataMsg *create();
 
     void destroyMsg(DataMsg *);
 };

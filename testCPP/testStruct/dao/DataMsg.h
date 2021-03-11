@@ -15,14 +15,15 @@ public:
 
     int index;
     uint32_t sample_num; //
-    uint32_t buff_size; //
+    uint32_t mic_buff_size; //
     TYPE_SAMPLE_t *micBuff = nullptr; //
     TYPE_SAMPLE_t *refBuff = nullptr;
 
 
     int inSampleRate = 0;
     int outSampleRate = 0;
-    int channel = 1;
+    int refChannel = 1;
+    int micChannel = 1;
     int bytesPerSample = sizeof(TYPE_SAMPLE_t);//
 
 //    TYPE_SAMPLE_t *proRefBuff = nullptr; //

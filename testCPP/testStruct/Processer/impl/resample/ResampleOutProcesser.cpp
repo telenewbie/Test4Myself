@@ -16,25 +16,37 @@ int ResampleOutProcesser::getMsgIndex() {
 
 void ResampleOutProcesser::process(DataMsg *msg) {
 
-    if (!resampleAdapter->ptr) {
-        resampleAdapter->initSample(msg->channel, msg->outSampleRate, msg->inSampleRate);
+    // 先处理 mic, 在处理 ref
+    uint32_t sampleNum = msg->mic_buff_size;
+    for (int i = msg->micChannel - 1; i >= 0; --i) {
+        if (resampleNears[i]) {
+
+            printf("mic before num:%d\n", msg->sample_num);
+            resampleNears[i]->resampler_process(i, &msg->micBuff[msg->sample_num * i], msg->sample_num,
+                                                &msg->micBuff[FRAME_SIZE_ONE * i], sampleNum);
+
+            printf("mic after num:%d\n", sampleNum);
+
+#ifdef DEBUG_FILE
+            dumpFile->writeMic(i, &msg->micBuff[msg->sample_num * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+#endif
+        }
     }
-
-    uint32_t out_len = msg->buff_size / msg->bytesPerSample;
-    resampleAdapter->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, out_len);
-
-    msg->sample_num = out_len;
-
-    std::fwrite(msg->micBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpMic);
+    msg->sample_num = sampleNum;
 }
 
 bool ResampleOutProcesser::canProcess(DataMsg *msg) {
     return msg->inSampleRate != SAMPLE_RATE_16k && msg->outSampleRate == SAMPLE_RATE_16k;
 }
 
-ResampleOutProcesser::ResampleOutProcesser() {
-    resampleAdapter = new RESAMPLE_TYPE;
-    fpMic = std::fopen(TEST_PCM_DIR "mic_resample_out.pcm", "wb+");
+ResampleOutProcesser::ResampleOutProcesser(ProcessorConfig *cfg) : BaseProcesser(cfg) {
+    for (int i = 0; i < cfg->mMicChannel; ++i) {
+        resampleNears[i] = new RESAMPLE_TYPE();
+        resampleNears[i]->initSample(cfg->mMicChannel, cfg->mOutSampleRate, cfg->mInSampleRate);
+    }
+#ifdef DEBUG_FILE
+    dumpFile = new DumpFileUtil(cfg, "resample_out_");
+#endif
 }
 
 std::string ResampleOutProcesser::getTag() {
@@ -42,8 +54,14 @@ std::string ResampleOutProcesser::getTag() {
 }
 
 ResampleOutProcesser::~ResampleOutProcesser() {
-    if (resampleAdapter) {
-        resampleAdapter->release();
-        delete (RESAMPLE_TYPE *) resampleAdapter;
+    for (auto &resampleNear : resampleNears) {
+        if (resampleNear) {
+            resampleNear->release();
+            delete (RESAMPLE_TYPE *) resampleNear;
+            resampleNear = nullptr;
+        }
     }
+#ifdef DEBUG_FILE
+    delete dumpFile;
+#endif
 }

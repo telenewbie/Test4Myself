@@ -13,41 +13,37 @@ MsgCreator *MsgCreator::getInstance() {
     return instance;
 }
 
-const int MAX_BUFFER_LENGTH = 100;//1s 的数据
+const int MAX_BUFFER_LENGTH = 1000;//1s 的数据
 int getNextBufferIndex() {
     static int index = 0;
-    ++index;
     if (index >= MAX_BUFFER_LENGTH) {
         index = 0;
+        return index;
+    } else {
+        return index++;
     }
-    return index;
 }
 
 
-DataMsg *MsgCreator::create(int sampleNum, int sampleRate, int channel, int bytesPerSample) {
-
-#if 0
-    int index = getNextBufferIndex();
-    auto *msg = new DataMsg;//&reserveDataMsg[index];
-    msg->micBuff =(TYPE_SAMPLE_t*) malloc(sampleNum*sizeof(TYPE_SAMPLE_t));//(short*)malloc(1024*sizeof(short));//&reserveMic[sampleNum  * bytesPerSample*index]; // todo:统一一块
-    msg->refBuff =  (TYPE_SAMPLE_t*) malloc(sampleNum*sizeof(TYPE_SAMPLE_t));//(short*)malloc(1024*sizeof(short));//&reserveRef[sampleNum  * bytesPerSample*index];
-#else
-    static auto *reserveMic = (char *) malloc(sampleNum * bytesPerSample * MAX_BUFFER_LENGTH); // 1s 数据
-    static auto *reserveRef = (char *) malloc(sampleNum * bytesPerSample * MAX_BUFFER_LENGTH);
+DataMsg *MsgCreator::create() {
+    static auto *reserveMic = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC);
+    static auto *reserveRef = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_REF);
     static auto *reserveDataMsg = (DataMsg *) malloc(sizeof(DataMsg) * MAX_BUFFER_LENGTH);
     int index = getNextBufferIndex();
     auto *msg = &reserveDataMsg[index];
-    msg->micBuff = (TYPE_SAMPLE_t*)&reserveMic[sampleNum * bytesPerSample * index]; //
-    msg->refBuff = (TYPE_SAMPLE_t*)&reserveRef[sampleNum * bytesPerSample * index];//
-#endif
+    msg->micBuff = (TYPE_SAMPLE_t *) &reserveMic[FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * CHANNEL_MIC * index]; //
+    msg->refBuff = (TYPE_SAMPLE_t *) &reserveRef[FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * CHANNEL_REF * index];//
+
     msg->init();
     msg->index = 0;
-    msg->sample_num = sampleNum;
-    msg->buff_size = sampleNum * bytesPerSample;
-    msg->inSampleRate = sampleRate;
+    msg->sample_num = FRAME_SIZE_ONE;
+    msg->mic_buff_size = FRAME_SIZE_ONE;
+    msg->inSampleRate = TEST_SAMPLE_RATE;
     msg->outSampleRate = RESAMPLE_OUT_RATE;
-    msg->channel = channel;
-    msg->bytesPerSample = bytesPerSample;
+    msg->refChannel = CHANNEL_REF;
+    msg->micChannel = CHANNEL_MIC;
+    msg->bytesPerSample = sizeof(TYPE_SAMPLE_t);
+    LOGD("create msg[%p],sample_num:%d", msg, msg->sample_num);
     return msg;
 }
 

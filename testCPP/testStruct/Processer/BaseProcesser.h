@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 #include <queue>
-
+#include "ProcessorConfig.h"
 
 class BaseProcesser {
 
@@ -21,7 +21,12 @@ class BaseProcesser {
 
     virtual void process(DataMsg *) = 0;
 
+
 public:
+    BaseProcesser(const ProcessorConfig* cfg);
+    BaseProcesser(const BaseProcesser&);
+    BaseProcesser& operator=(const BaseProcesser&);
+    virtual ~BaseProcesser();
     virtual std::string getTag() = 0;
     void notify(DataMsg *);
 
@@ -36,12 +41,15 @@ public:
 
 private:
     void innerProcess();
+    void dispose(DataMsg *msg);
 
 protected:
     virtual bool needTransport();
     std::queue<DataMsg *> mVecMsg;
     std::vector<int> a;
-//    DataMsg *mCurMsg = nullptr;
+
+    bool mNeedNewThread = false; // use new thread do things?
+
 private:
     std::thread mProcessThread;
 

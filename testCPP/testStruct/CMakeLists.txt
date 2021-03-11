@@ -34,7 +34,8 @@ else ()
             )
     include_directories(include/dnn Processer/impl/resample)
     include_directories(include/aec)
-    set(EXT_SRC Processer/impl/dnn/DnnProcesser.cpp
+    set(EXT_SRC
+            #Processer/impl/dnn/DnnProcesser.cpp
             Processer/impl/dnn/DnnProcesser.h
             Processer/impl/resample/speex/resample.c
             Processer/impl/aec/EVDspProcess.cpp
@@ -102,14 +103,17 @@ set(SRC main.cpp ProcessCenter.cpp
         Processer/impl/resample/BaseResample.h
         TEST_CONSTANT.h Processer/impl/resample/ResampleOutProcesser.cpp
         Processer/impl/resample/ResampleOutProcesser.h
-        Processer/impl/aec/AECProcesser.cpp
+        #Processer/impl/aec/AECProcesser.cpp
         Processer/impl/aec/AECProcesser.h
         Buffer/MyRefBuffer.cpp
         Buffer/MyRefBuffer.h
         Processer/HelloProcesser.cpp
         Processer/HelloProcesser.h
         Processer/impl/resample/BaseResampleAdapter.cpp
-        Processer/impl/resample/BaseResampleAdapter.h Processer/impl/resample/SpeexResamplerAdapter.cpp Processer/impl/resample/SpeexResamplerAdapter.h)
+        Processer/impl/resample/BaseResampleAdapter.h
+        Processer/impl/resample/SpeexResamplerAdapter.cpp
+        Processer/impl/resample/SpeexResamplerAdapter.h
+        Processer/impl/aec/BaseAECAdapter.cpp Processer/impl/aec/BaseAECAdapter.h Processer/ProcessorConfig.cpp Processer/ProcessorConfig.h utils/DumpFileUtil.cpp utils/DumpFileUtil.h Processer/impl/slice/FrameSliceProcessor.cpp Processer/impl/slice/FrameSliceProcessor.h Processer/impl/slice/FrameSyntheticProcessor.cpp Processer/impl/slice/FrameSyntheticProcessor.h)
 
 set(CMAKE_CXX_STANDARD 11)
 add_executable(testStruct ${SRC})

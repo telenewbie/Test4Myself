@@ -30,6 +30,7 @@ void DnnProcesser::process(DataMsg* msg) {
     memmove(input_buffer_f32, input_buffer_f32 + expect_frameSize,
             sizeof(float) * expect_frameSize);
 
+    // 如果已经是float类型
     for (int i = 0; i < expect_frameSize; ++i) {
         input_buffer_f32[i+expect_frameSize] = 1.0f*msg->micBuff[i] / 32768.f;
     }

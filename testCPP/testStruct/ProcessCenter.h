@@ -29,9 +29,9 @@ public:
 
 private:
     bool mIsRelease = false;
-    int mSampleRate = 0;
-    int mChannel = 0;
-    int mBytePerSample = 0;
+//    int mSampleRate = 0;
+//    int mChannel = 0;
+//    int mBytePerSample = 0;
 };
 
 

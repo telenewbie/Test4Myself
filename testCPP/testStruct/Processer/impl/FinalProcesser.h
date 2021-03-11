@@ -17,7 +17,7 @@ class FinalProcesser : public BaseProcesser {
     bool canProcess(DataMsg *) override;
 
 public:
-    FinalProcesser();
+    FinalProcesser(ProcessorConfig*);
     ~FinalProcesser();
 
 private:

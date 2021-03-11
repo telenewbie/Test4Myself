@@ -4,11 +4,8 @@
 
 #include <Processer/ProcesserPori.h>
 #include <TEST_CONSTANT.h>
+#include <string>
 #include "ResampleInProcesser.h"
-
-static FILE *fpMic = nullptr;
-static FILE *fpRef = nullptr;
-
 
 using RESAMPLE_TYPE = SpeexResamplerAdapter;
 
@@ -19,21 +16,32 @@ int ResampleInProcesser::getMsgIndex() {
 
 void ResampleInProcesser::process(DataMsg *msg) {
 
-    if (resampleFar->ptr == nullptr) {
-        resampleFar->initSample(msg->channel, msg->inSampleRate, msg->outSampleRate);
-    }
-    if (resampleNear->ptr == nullptr) {
-        resampleNear->initSample(msg->channel, msg->inSampleRate, msg->outSampleRate);
-    }
+    // 每个通道都进行处理
+    // 校验数据长度是否正确
+    checkDataVerify(msg);
 
+    // 先处理 mic, 在处理 ref
     uint32_t sampleNum = msg->sample_num;
-    resampleNear->resampler_process(msg->micBuff, msg->sample_num, msg->micBuff, sampleNum);
-    resampleFar->resampler_process(msg->refBuff, msg->sample_num, msg->refBuff, sampleNum);
-    msg->sample_num = sampleNum;
+    for (int i = 0; i < msg->micChannel; ++i) {
+        if (resampleNears[i]) {
+            resampleNears[i]->resampler_process(i, &msg->micBuff[msg->sample_num * i], msg->sample_num,
+                                                &msg->micBuff[msg->sample_num * i], sampleNum);
+#ifdef DEBUG_FILE
+            dumpFile->writeMic(i, &msg->micBuff[msg->sample_num * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+#endif
+        }
+    }
+    for (int i = 0; i < msg->refChannel; ++i) {
+        if (resampleFars[i]) {
+            resampleFars[i]->resampler_process(i, &msg->refBuff[msg->sample_num * i], msg->sample_num,
+                                               &msg->refBuff[msg->sample_num * i], sampleNum);
+#ifdef DEBUG_FILE
+            dumpFile->writeRef(i, &msg->refBuff[msg->sample_num * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+#endif
+        }
+    }
 
-    // 输出
-    std::fwrite(msg->micBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpMic);
-    std::fwrite(msg->refBuff, sizeof(TYPE_SAMPLE_t), msg->sample_num, fpRef);
+    msg->sample_num = sampleNum;
 }
 
 bool ResampleInProcesser::canProcess(DataMsg *msg) {
@@ -41,44 +49,56 @@ bool ResampleInProcesser::canProcess(DataMsg *msg) {
            msg->inSampleRate == SAMPLE_RATE_48k;
 }
 
-ResampleInProcesser::ResampleInProcesser() {
-    fpMic = std::fopen(TEST_PCM_DIR "mic_resample_in.pcm", "wb+");
-    fpRef = std::fopen(TEST_PCM_DIR "ref_resample_in.pcm", "wb+");
-    if (resampleFar == nullptr) {
-        resampleFar = new RESAMPLE_TYPE();
-    }
-    if (resampleNear == nullptr) {
-        resampleNear = new RESAMPLE_TYPE();
-    }
-}
-
 ResampleInProcesser::~ResampleInProcesser() {
-    if (resampleFar) {
-        resampleFar->release();
-        delete (RESAMPLE_TYPE *) resampleFar;
-    }
-    if (resampleNear) {
-        resampleNear->release();
-        delete (RESAMPLE_TYPE *) resampleNear;
-    }
-    std::fclose(fpRef);
-    std::fclose(fpMic);
-}
 
-void ResampleInProcesser::initResample(SpeexResamplerState **resamplePtr, DataMsg *mMsg) {
-    if (!resamplePtr) return;
-    if (*resamplePtr == nullptr) {
-        int err = 0;
-        int outSampleRate = SAMPLE_RATE_16k;
-        *resamplePtr = elevoc_resampler_init(mMsg->channel, mMsg->inSampleRate, outSampleRate, 9, &err);
-        if (*resamplePtr != nullptr) {
-            elevoc_resampler_set_rate(*resamplePtr, mMsg->inSampleRate, outSampleRate);
-        } else {
-            return;
+    for (auto &resampleNear : resampleNears) {
+        if (resampleNear) {
+            resampleNear->release();
+            delete (RESAMPLE_TYPE *) resampleNear;
+            resampleNear = nullptr;
         }
     }
+
+    for (auto &resampleFar : resampleFars) {
+        if (resampleFar) {
+            resampleFar->release();
+            delete (RESAMPLE_TYPE *) resampleFar;
+            resampleFar = nullptr;
+        }
+    }
+#ifdef DEBUG_FILE
+    delete dumpFile;
+#endif
+}
+
+void ResampleInProcesser::initResample(SpeexResamplerState **, DataMsg *) {
+
 }
 
 std::string ResampleInProcesser::getTag() {
     return "resample in";
+}
+
+ResampleInProcesser::ResampleInProcesser(ProcessorConfig *cfg) : BaseProcesser(cfg) {
+    if (cfg->mOutSampleRate == 0 || cfg->mInSampleRate == 0) {
+        LOGE("input sampleRate error!!!!!");
+        return;
+    }
+    for (int i = 0; i < cfg->mMicChannel; ++i) {
+        resampleNears[i] = new RESAMPLE_TYPE();
+        resampleNears[i]->initSample(cfg->mMicChannel, cfg->mInSampleRate, cfg->mOutSampleRate);
+    }
+    for (int i = 0; i < cfg->mRefChannel; ++i) {
+        resampleFars[i] = new RESAMPLE_TYPE();
+        resampleFars[i]->initSample(cfg->mRefChannel, cfg->mInSampleRate, cfg->mOutSampleRate);
+    }
+#ifdef DEBUG_FILE
+    dumpFile = new DumpFileUtil(cfg, "resample_in_");
+#endif
+}
+
+bool ResampleInProcesser::checkDataVerify(DataMsg *) {
+    // 数据量是否
+    //msg->sample_num* msg->channel* msg->bytesPerSample
+    return true;
 }

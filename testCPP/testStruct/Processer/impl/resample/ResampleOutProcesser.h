@@ -9,6 +9,7 @@
 #include <Processer/BaseProcesser.h>
 #include "BaseResample.h"
 #include "BaseResampleAdapter.h"
+#include "DumpFileUtil.h"
 
 class ResampleOutProcesser : public BaseProcesser {
     int getMsgIndex() override;
@@ -17,14 +18,18 @@ class ResampleOutProcesser : public BaseProcesser {
 
     bool canProcess(DataMsg *) override;
 
-    BaseResampleAdapter *resampleAdapter = nullptr;
-
-    char input_resampler_buffer[MAX_FRAME_BYTE_SIZE];
+    BaseResampleAdapter *resampleNears[MAX_CHANNEL] = {0};
 public:
     virtual std::string getTag() override;
 
-    ResampleOutProcesser();
+    ResampleOutProcesser(ProcessorConfig *);
+
     ~ResampleOutProcesser();
+
+private:
+#ifdef DEBUG_FILE
+    DumpFileUtil *dumpFile = nullptr;
+#endif
 };
 
 

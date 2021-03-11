@@ -15,31 +15,21 @@ static FILE *fpRef = nullptr;
 
 void ProcessCenter::start() {
     // 开始处理数据
-
-    size_t readSampleNum = mSampleRate / 100; //
-    //等待数据到来
-    size_t size = readSampleNum * sizeof(TYPE_SAMPLE_t);
-    auto *readMicBuffer = (TYPE_SAMPLE_t *) malloc(size);
-    auto *readRefBuffer = (TYPE_SAMPLE_t *) malloc(size);
-    memset(readMicBuffer, 0, size);
-    memset(readRefBuffer, 0, size);
+//
+//    size_t readSampleNum = FRAME_SIZE_ONE; // fix
+//    //等待数据到来
+//    size_t size = readSampleNum * sizeof(TYPE_SAMPLE_t);
 
     while (!mIsRelease) {
         // 获取一帧数据
 
-        DataMsg *msg = MsgCreator::getInstance()->create(readSampleNum, mSampleRate, mChannel, mBytePerSample);
-        LOGD("ProcessCenter msg:[%p]%d:%d:%d",msg,msg->inSampleRate,msg->outSampleRate,mBytePerSample);
-        int readLen = MyMicBuffer::getInstance()->read((char *) msg->micBuff, size);
-        MyRefBuffer::getInstance()->read((char *) msg->refBuff, size);
+        DataMsg *msg = MsgCreator::getInstance()->create();
+        LOGD("ProcessCenter msg:[%p]%d:%d:%lld", msg, msg->inSampleRate, msg->outSampleRate, sizeof(TYPE_SAMPLE_t));
+        int readLen = MyMicBuffer::getInstance()->read((char *) msg->micBuff, READ_MIC_SIZE);
+        MyRefBuffer::getInstance()->read((char *) msg->refBuff, READ_REF_SIZE);
 
-        LOGD("ProcessCenter msg:[%p]%d:%d:%d",msg,msg->inSampleRate,msg->outSampleRate,mBytePerSample);
-//        LOGD("[%s]read size:%d", __FILE__, readLen);
-        //转float
-//        convertFloatToShort()
-//        convertByteToFloat(readMicBuffer, readLen, msg->micBuff, msg->sampleLen, DEFAULT);
-//        convertByteToFloat(readRefBuffer, readLen, msg->refBuff, msg->sampleLen, DEFAULT);
-
-//        std::fwrite(readMicBuffer, 1, readLen, fpRef);
+        LOGD("ProcessCenter msg:[%p]%d:%d:%lld", msg, msg->inSampleRate, msg->outSampleRate, sizeof(TYPE_SAMPLE_t));
+        LOGD("[%s]read size:%d", __FILE__, readLen);
 
         EventCenter::getInstance()->send(msg);
     }
@@ -68,7 +58,7 @@ ProcessCenter::~ProcessCenter() {
 
 void ProcessCenter::init(int sampleRate, int channel, int bytePerSample) {
     LOGD("ProcessCenter init:%d,%d,%d", sampleRate, channel, bytePerSample);
-    mSampleRate = sampleRate;
-    mChannel = channel;
-    mBytePerSample = bytePerSample;
+//    mSampleRate = sampleRate;
+//    mChannel = channel;
+//    mBytePerSample = bytePerSample;
 }

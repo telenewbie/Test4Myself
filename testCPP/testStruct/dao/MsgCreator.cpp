@@ -13,7 +13,7 @@ MsgCreator *MsgCreator::getInstance() {
     return instance;
 }
 
-const int MAX_BUFFER_LENGTH = 1000;//1s 的数据
+
 int getNextBufferIndex() {
     static int index = 0;
     if (index >= MAX_BUFFER_LENGTH) {
@@ -26,14 +26,22 @@ int getNextBufferIndex() {
 
 
 DataMsg *MsgCreator::create() {
-    static auto *reserveMic = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC);
-    static auto *reserveRef = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_REF);
-    static auto *reserveDataMsg = (DataMsg *) malloc(sizeof(DataMsg) * MAX_BUFFER_LENGTH);
+
 //    memset(reserveMic,0,sizeof(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC));
 //    memset(reserveRef,0,sizeof(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC));
 //    memset(reserveDataMsg,0,sizeof(sizeof(DataMsg) * MAX_BUFFER_LENGTH));
     int index = getNextBufferIndex();
     auto *msg = &reserveDataMsg[index];
+
+    // 停住
+    if (msg->index != 0) {
+        mWaitCond.wait(lk, [&]() { return mIsRelease || msg->index == 0; });
+    }
+
+    if (mIsRelease) {
+        LOGD("create Msg error , is release now!");
+        return nullptr;
+    }
     msg->micBuff = (TYPE_SAMPLE_t *) &reserveMic[FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * CHANNEL_MIC * index]; //
     msg->refBuff = (TYPE_SAMPLE_t *) &reserveRef[FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * CHANNEL_REF * index];//
 
@@ -52,16 +60,23 @@ DataMsg *MsgCreator::create() {
 
 void MsgCreator::destroyMsg(DataMsg *msg) {
     if (msg != nullptr) {
-////        printf("delete msg [%llu]\n", msg->getId());
-//        free(msg->micBuff);
-//        free(msg->refBuff);
-//        free(msg->proMicBuff);
-//        free(msg->proRefBuff);
-//        delete msg;
-//        msg = nullptr;
+        msg->index = 0;
+        mWaitCond.notify_one();
     }
 }
 
 MsgCreator::MsgCreator() {
+    reserveMic = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC);
+    reserveRef = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_REF);
+    reserveDataMsg = (DataMsg *) malloc(sizeof(DataMsg) * MAX_BUFFER_LENGTH);
+    memset(reserveDataMsg, 0, sizeof(DataMsg) * MAX_BUFFER_LENGTH);
+    lk = std::unique_lock<std::mutex>(mMutex);
+}
 
+MsgCreator::~MsgCreator() {
+    mIsRelease = true;
+    mWaitCond.notify_all();
+    free(reserveMic);
+    free(reserveRef);
+    free(reserveDataMsg);
 }

@@ -44,7 +44,7 @@ void FrameSyntheticProcessor::process(DataMsg *curMsg) {
         }
     }
 #ifdef DEBUG_FILE
-    dumpFile->writeMic(0, m_slice_data, sizeof(TYPE_SAMPLE_t), FRAME_SIZE_ONE * CHANNEL_MIC);
+    dumpFile->write(DumpFileUtil::OUT_MIC, 0, m_slice_data, sizeof(TYPE_SAMPLE_t), FRAME_SIZE_ONE * CHANNEL_MIC);
 #endif
 
     memcpy(curMsg->micBuff, m_slice_data, FRAME_SIZE_ONE * CHANNEL_MIC * sizeof(TYPE_SAMPLE_t));

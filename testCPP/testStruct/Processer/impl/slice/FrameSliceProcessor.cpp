@@ -29,7 +29,7 @@ void FrameSliceProcessor::process(DataMsg *curMsg) {
             m_slice_data[index * curMsg->sample_num + i] = curMsg->micBuff[i* curMsg->micChannel + j];
         }
 #ifdef DEBUG_FILE
-        dumpFile->writeMic(index, &m_slice_data[index * curMsg->sample_num], sizeof(TYPE_SAMPLE_t), curMsg->sample_num);
+        dumpFile->write(DumpFileUtil::OUT_MIC,index, &m_slice_data[index * curMsg->sample_num], sizeof(TYPE_SAMPLE_t), curMsg->sample_num);
 #endif
     }
 
@@ -45,7 +45,7 @@ void FrameSliceProcessor::process(DataMsg *curMsg) {
             m_slice_data[index * curMsg->sample_num + i] = curMsg->refBuff[i* curMsg->micChannel + j];
         }
 #ifdef DEBUG_FILE
-        dumpFile->writeRef(index, &m_slice_data[index * curMsg->sample_num], sizeof(TYPE_SAMPLE_t), curMsg->sample_num);
+        dumpFile->write(DumpFileUtil::OUT_REF,index, &m_slice_data[index * curMsg->sample_num], sizeof(TYPE_SAMPLE_t), curMsg->sample_num);
 #endif
     }
     memcpy(curMsg->refBuff, m_slice_data, FRAME_SIZE_ONE * CHANNEL_REF * sizeof(TYPE_SAMPLE_t));

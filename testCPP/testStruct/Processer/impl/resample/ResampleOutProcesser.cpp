@@ -20,14 +20,15 @@ void ResampleOutProcesser::process(DataMsg *msg) {
     for (int i = msg->micChannel - 1; i >= 0; --i) {
         if (resampleNears[i]) {
 
-            printf("mic before num:%d\n", msg->sample_num);
+//            printf("mic before num:%d\n", msg->sample_num);
             resampleNears[i]->resampler_process(i, &msg->micBuff[msg->mic_buff_size * i], msg->sample_num,
                                                 &msg->micBuff[FRAME_SIZE_ONE * i], sampleNum);
 
-            printf("mic after num:%d\n", sampleNum);
+//            printf("mic after num:%d\n", sampleNum);
 
 #ifdef DEBUG_FILE
-            dumpFile->writeMic(i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+            dumpFile->write(DumpFileUtil::OUT_MIC, i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t),
+                            sampleNum);
 #endif
         }
     }

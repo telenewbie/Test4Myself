@@ -24,10 +24,14 @@ void ProcessCenter::start() {
         // 获取一帧数据
 
         DataMsg *msg = MsgCreator::getInstance()->create();
+        if (!msg) {
+            LOGD("can't create Msg! maybe Release[%d]", mIsRelease);
+            return;
+        }
         LOGD("ProcessCenter msg:[%p]%d:%d:%lld", msg, msg->inSampleRate, msg->outSampleRate, sizeof(TYPE_SAMPLE_t));
         int readLen = MyMicBuffer::getInstance()->read((char *) msg->micBuff, READ_MIC_SIZE);
         MyRefBuffer::getInstance()->read((char *) msg->refBuff, READ_REF_SIZE);
-        fwrite(msg->refBuff,sizeof(TYPE_SAMPLE_t),READ_REF_SIZE/sizeof(TYPE_SAMPLE_t),fpRef);
+        fwrite(msg->refBuff, sizeof(TYPE_SAMPLE_t), READ_REF_SIZE / sizeof(TYPE_SAMPLE_t), fpRef);
 
         LOGD("ProcessCenter msg:[%p]%d:%d:%lld", msg, msg->inSampleRate, msg->outSampleRate, sizeof(TYPE_SAMPLE_t));
         LOGD("[%s]read size:%d", __FILE__, readLen);
@@ -54,6 +58,7 @@ ProcessCenter *ProcessCenter::getInstance() {
 }
 
 ProcessCenter::~ProcessCenter() {
+    release();
     std::fclose(fpRef);
 }
 

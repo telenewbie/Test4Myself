@@ -8,8 +8,8 @@
 #include <inttypes.h>
 
 //#define TELENEWBIE_44100_c1_b24
-//#define TELENEWBIE_48000_c2_b16
-#define TELENEWBIE_48000_c1_f32
+#define TELENEWBIE_48000_c2_b16
+//#define TELENEWBIE_48000_c1_f32
 //#define TELENEWBIE_48000_c4_f32
 #define RESAMPLE_OUT_RATE 16000
 #define FRAME_TIME_MILLISECOND 10
@@ -18,11 +18,12 @@
 
 
 #if defined(TELENEWBIE_48000_c2_b16)
-#define TEST_PCM_DIR "C:\\Users\\Lake\\Desktop\\"
-#define TEST_PCM_NAME "testMic" // 16000_c1_16b.pcm
-#define TEST_REF_PCM_NAME "testRef04" // 16000_c1_16b.pcm
+#define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
+#define TEST_PCM_NAME "48000_c2_b16_near" // 16000_c1_16b.pcm
+#define TEST_REF_PCM_NAME "48000_c2_b16_far" // 16000_c1_16b.pcm
 #define TEST_SAMPLE_RATE 48000
-#define TEST_CHANNEL 2
+#define CHANNEL_MIC 2
+#define CHANNEL_REF 2
 typedef int16_t TYPE_SAMPLE_t;
 #elif defined(TELENEWBIE_48000_c4_f32)
 #define TEST_PCM_DIR "D:\\code\\Test4Myself\\testCPP\\testStruct\\asserts\\"
@@ -75,5 +76,6 @@ typedef float TYPE_SAMPLE_t;
 #define TEST_PCM_PATH (TEST_PCM_DIR TEST_PCM_NAME ".pcm")
 #define TEST_REF_PCM_PATH (TEST_PCM_DIR TEST_REF_PCM_NAME ".pcm")
 #define TEST_PCM_OUT_PATH (TEST_PCM_DIR TEST_PCM_NAME  "_out.pcm")
+const int MAX_BUFFER_LENGTH = 1000;//1s 的数据
 
 #endif //TEST_TEST_CONSTANT_H

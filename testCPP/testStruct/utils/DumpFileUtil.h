@@ -6,8 +6,17 @@
 #define TEST1_DUMPFILEUTIL_H
 
 #include "BaseProcesser.h"
+#include <map>
+#include <array>
 
 class DumpFileUtil {
+public:
+    enum DUMP_TYPE {
+        IN_MIC,
+        IN_REF,
+        OUT_MIC,
+        OUT_REF
+    };
 
 public:
     DumpFileUtil() = delete;
@@ -17,14 +26,17 @@ public:
     ~DumpFileUtil();
 
 public:
-    void writeRef(int channelIndex, const void *ptr, size_t size, size_t nmemb);
+    void write(DUMP_TYPE, int channelIndex, const void *ptr, size_t size, size_t nmemb);
 
-    void writeMic(int channelIndex, const void *ptr, size_t size, size_t nmemb);
+//    void writeMic(int channelIndex, const void *ptr, size_t size, size_t nmemb);
 
 private:
 #ifdef DEBUG_FILE
-    FILE *fpMics[MAX_CHANNEL] = {0};
-    FILE *fpRefs[MAX_CHANNEL] = {0};
+    std::map<int, std::array<FILE *, MAX_CHANNEL>> fpMaps;
+    std::array<FILE *, MAX_CHANNEL> fpOutMics = {0};
+    std::array<FILE *, MAX_CHANNEL> fpOutRefs = {0};
+    std::array<FILE *, MAX_CHANNEL> fpInMics = {0};
+    std::array<FILE *, MAX_CHANNEL> fpInRefs = {0};
 #endif
 };
 

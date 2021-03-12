@@ -28,6 +28,9 @@ void BaseProcesser::innerProcess() {
         mWaitCond.wait(lk, [&]() -> bool { return mIsRelease || !mVecMsg.empty(); });
 
         if (!mIsRelease && mVecMsg.size() > 0) {
+            if (mVecMsg.size() >= MAX_BUFFER_LENGTH) {
+                printf("processing is so fast , capacity is too small!!![%zu/%d]\n", mVecMsg.size(), MAX_BUFFER_LENGTH);
+            }
             DataMsg *curMsg = mVecMsg.front();
             mVecMsg.pop();
             dispose(curMsg);

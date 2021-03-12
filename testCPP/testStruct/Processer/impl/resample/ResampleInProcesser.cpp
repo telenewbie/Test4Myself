@@ -28,7 +28,7 @@ void ResampleInProcesser::process(DataMsg *msg) {
             resampleNears[i]->resampler_process(i, &msg->micBuff[msg->mic_buff_size * i], msg->sample_num,
                                                 &msg->micBuff[msg->mic_buff_size * i], sampleMicNum);
 #ifdef DEBUG_FILE
-            dumpFile->writeMic(i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleMicNum);
+            dumpFile->write(DumpFileUtil::DUMP_TYPE::OUT_MIC,i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleMicNum);
 #endif
         }
     }
@@ -38,7 +38,7 @@ void ResampleInProcesser::process(DataMsg *msg) {
             resampleFars[i]->resampler_process(i, &msg->refBuff[msg->mic_buff_size * i], msg->sample_num,
                                                &msg->refBuff[msg->mic_buff_size * i], sampleRefNum);
 #ifdef DEBUG_FILE
-            dumpFile->writeRef(i, &msg->refBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleRefNum);
+            dumpFile->write(DumpFileUtil::DUMP_TYPE::OUT_REF,i, &msg->refBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleRefNum);
 #endif
         }
     }

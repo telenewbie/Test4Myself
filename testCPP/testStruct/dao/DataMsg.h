@@ -13,7 +13,7 @@ public:
     DataMsg();
     void init();// required
 
-    int index;
+    int index = 0;
     uint32_t sample_num; //
     uint32_t mic_buff_size; //
     TYPE_SAMPLE_t *micBuff = nullptr; //

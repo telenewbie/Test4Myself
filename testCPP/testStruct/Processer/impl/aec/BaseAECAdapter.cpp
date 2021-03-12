@@ -3,3 +3,12 @@
 //
 
 #include "BaseAECAdapter.h"
+
+BaseAECAdapter::~BaseAECAdapter() {
+
+}
+
+
+BaseAECAdapter::BaseAECAdapter(const AECConfig &cfg) {
+    mAecConfig = cfg;
+}

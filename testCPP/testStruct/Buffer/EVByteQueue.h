@@ -18,7 +18,8 @@
 #include <mutex>
 #include <condition_variable>
 
-#define QUEUE_SIZE (320 * 50 + 1)
+#include "TEST_CONSTANT.h"
+#define QUEUE_SIZE (FRAME_SIZE_ONE*MAX_CHANNEL*sizeof(TYPE_SAMPLE_t) * 50 + 1)
 
 /**
  管理内存的循环队列,并非管理线程

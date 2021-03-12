@@ -8,7 +8,6 @@
 #include "SpeexResamplerAdapter.h"
 
 using RESAMPLE_TYPE = SpeexResamplerAdapter;
-static FILE *fpMic = nullptr;
 
 int ResampleOutProcesser::getMsgIndex() {
     return PORI_RESAMPLE_OUT;
@@ -22,13 +21,13 @@ void ResampleOutProcesser::process(DataMsg *msg) {
         if (resampleNears[i]) {
 
             printf("mic before num:%d\n", msg->sample_num);
-            resampleNears[i]->resampler_process(i, &msg->micBuff[msg->sample_num * i], msg->sample_num,
+            resampleNears[i]->resampler_process(i, &msg->micBuff[msg->mic_buff_size * i], msg->sample_num,
                                                 &msg->micBuff[FRAME_SIZE_ONE * i], sampleNum);
 
             printf("mic after num:%d\n", sampleNum);
 
 #ifdef DEBUG_FILE
-            dumpFile->writeMic(i, &msg->micBuff[msg->sample_num * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+            dumpFile->writeMic(i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleNum);
 #endif
         }
     }

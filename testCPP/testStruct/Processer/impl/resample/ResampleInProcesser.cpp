@@ -7,6 +7,7 @@
 #include <string>
 #include "ResampleInProcesser.h"
 
+
 using RESAMPLE_TYPE = SpeexResamplerAdapter;
 
 int ResampleInProcesser::getMsgIndex() {
@@ -21,27 +22,28 @@ void ResampleInProcesser::process(DataMsg *msg) {
     checkDataVerify(msg);
 
     // 先处理 mic, 在处理 ref
-    uint32_t sampleNum = msg->sample_num;
+    uint32_t sampleMicNum = msg->sample_num;
     for (int i = 0; i < msg->micChannel; ++i) {
         if (resampleNears[i]) {
-            resampleNears[i]->resampler_process(i, &msg->micBuff[msg->sample_num * i], msg->sample_num,
-                                                &msg->micBuff[msg->sample_num * i], sampleNum);
+            resampleNears[i]->resampler_process(i, &msg->micBuff[msg->mic_buff_size * i], msg->sample_num,
+                                                &msg->micBuff[msg->mic_buff_size * i], sampleMicNum);
 #ifdef DEBUG_FILE
-            dumpFile->writeMic(i, &msg->micBuff[msg->sample_num * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+            dumpFile->writeMic(i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleMicNum);
 #endif
         }
     }
+    uint32_t sampleRefNum = msg->sample_num;
     for (int i = 0; i < msg->refChannel; ++i) {
         if (resampleFars[i]) {
-            resampleFars[i]->resampler_process(i, &msg->refBuff[msg->sample_num * i], msg->sample_num,
-                                               &msg->refBuff[msg->sample_num * i], sampleNum);
+            resampleFars[i]->resampler_process(i, &msg->refBuff[msg->mic_buff_size * i], msg->sample_num,
+                                               &msg->refBuff[msg->mic_buff_size * i], sampleRefNum);
 #ifdef DEBUG_FILE
-            dumpFile->writeRef(i, &msg->refBuff[msg->sample_num * i], sizeof(TYPE_SAMPLE_t), sampleNum);
+            dumpFile->writeRef(i, &msg->refBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), sampleRefNum);
 #endif
         }
     }
 
-    msg->sample_num = sampleNum;
+    msg->sample_num = sampleMicNum;
 }
 
 bool ResampleInProcesser::canProcess(DataMsg *msg) {

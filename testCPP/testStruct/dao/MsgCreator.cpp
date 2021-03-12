@@ -29,6 +29,9 @@ DataMsg *MsgCreator::create() {
     static auto *reserveMic = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC);
     static auto *reserveRef = (char *) malloc(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_REF);
     static auto *reserveDataMsg = (DataMsg *) malloc(sizeof(DataMsg) * MAX_BUFFER_LENGTH);
+//    memset(reserveMic,0,sizeof(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC));
+//    memset(reserveRef,0,sizeof(FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * MAX_BUFFER_LENGTH * CHANNEL_MIC));
+//    memset(reserveDataMsg,0,sizeof(sizeof(DataMsg) * MAX_BUFFER_LENGTH));
     int index = getNextBufferIndex();
     auto *msg = &reserveDataMsg[index];
     msg->micBuff = (TYPE_SAMPLE_t *) &reserveMic[FRAME_SIZE_ONE * sizeof(TYPE_SAMPLE_t) * CHANNEL_MIC * index]; //

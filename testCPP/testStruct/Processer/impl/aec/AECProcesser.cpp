@@ -7,11 +7,9 @@
 #include <utils/EVPCMHelper.h>
 #include "AECProcesser.h"
 
-using namespace webrtc;
+#include "WebrtcAec.h"
 
-static FILE *fpMic = nullptr;
-static FILE *fpOriMic = nullptr;
-static FILE *fpOriRef = nullptr;
+using namespace webrtc;
 
 int AECProcesser::getMsgIndex() {
     return PORI_AEC;
@@ -19,39 +17,44 @@ int AECProcesser::getMsgIndex() {
 
 void AECProcesser::process(DataMsg *msg) {
 
+    static_assert(CHANNEL_MIC == CHANNEL_REF, "mic ");
     if (!mAecRunning) {
-        dspProcess.setSamplerate(msg->outSampleRate);
-        mAecRunning = dspProcess.start(true);
+        mAecRunning = mAECAdapter->start();
     }
 
-    // 远端数据
     int aec_sample_num = msg->sample_num;
-    dspProcess.FarFrame(msg->refBuff, aec_sample_num);
-    int out_len = 0, linear_out_len = 0;
-// 近端数据
-    dspProcess.NearFrame(msg->micBuff, aec_sample_num, msg->micBuff, out_len,
-                         linear_out_buffer, linear_out_len);
-
-
-//    printf("out len =%d\n", out_len);
-//    std::fwrite(msg->proMicBuff, sizeof(short ), out_len, fpMic);
-    std::fwrite(msg->micBuff, sizeof(short), out_len, fpOriMic);
-    std::fwrite(msg->refBuff, sizeof(short), out_len, fpOriRef);
+    for (int i = 0; i < CHANNEL_MIC; ++i) {
+        // 远端数据
+        mAECAdapter->writeFarFrame(&msg->refBuff[msg->mic_buff_size * i], aec_sample_num);
+        dumpFile->writeRef(i, &msg->refBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), aec_sample_num);
+        int out_len = 0, linear_out_len = 0;
+        // 近端数据
+        mAECAdapter->writeNearFrame(&msg->micBuff[msg->mic_buff_size * i], aec_sample_num,
+                                    &msg->micBuff[msg->mic_buff_size * i], out_len,
+                                    &linear_out_buffer[msg->mic_buff_size * i], linear_out_len);
+#ifdef DEBUG_FILE
+        dumpFile->writeMic(i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), out_len);
+//        dumpFile->writeRef(i, &linear_out_buffer[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t), linear_out_len);
+#endif
+    }
 }
 
-AECProcesser::AECProcesser() {
-    fpMic = std::fopen(TEST_PCM_DIR "aec.pcm", "wb+");
-    fpOriMic = std::fopen(TEST_PCM_DIR "aecOriMic.pcm", "wb+");
-    fpOriRef = std::fopen(TEST_PCM_DIR "aecOriRef.pcm", "wb+");
-    memset(mRefBuffer, 0, sizeof(mRefBuffer));
-    memset(mMicBuffer, 0, sizeof(mMicBuffer));
+AECProcesser::AECProcesser(const ProcessorConfig *cfg) : BaseProcesser(cfg) {
+    AECConfig config;
+    config.enableAGC = false;
+    config.sampleRate = cfg->mOutSampleRate;
+    mAECAdapter = new AEC::WebrtcAec(std::move(config));
+#ifdef DEBUG_FILE
+    dumpFile = new DumpFileUtil(cfg, "aec_");
+#endif
 }
 
 AECProcesser::~AECProcesser() {
-    std::fclose(fpMic);
-    std::fclose(fpOriMic);
-    std::fclose(fpOriRef);
-    dspProcess.release();
+    mAECAdapter->release();
+    delete mAECAdapter;
+#ifdef DEBUG_FILE
+    delete dumpFile;
+#endif
 
 }
 

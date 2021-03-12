@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(testStruct)
 set(CMAKE_VERBOSE_MAKEFILE on)
 option(USE_ENGINE "need use engine to test" false)
-include_directories(. Buffer config dao Processer Processer/impl utils)
+include_directories(. Buffer config dao Processer Processer/impl Processer/impl/aec/webrtc utils)
+include_directories(Processer/impl/aec)
 if (USE_ENGINE)
     message(FATAL_ERROR 456)
     include_directories(include/engine)
@@ -38,7 +39,7 @@ else ()
             #Processer/impl/dnn/DnnProcesser.cpp
             Processer/impl/dnn/DnnProcesser.h
             Processer/impl/resample/speex/resample.c
-            Processer/impl/aec/EVDspProcess.cpp
+            Processer/impl/aec/webrtc/EVDspProcess.cpp
             )
     add_library(dnn STATIC IMPORTED)
     set_target_properties(dnn
@@ -103,7 +104,7 @@ set(SRC main.cpp ProcessCenter.cpp
         Processer/impl/resample/BaseResample.h
         TEST_CONSTANT.h Processer/impl/resample/ResampleOutProcesser.cpp
         Processer/impl/resample/ResampleOutProcesser.h
-        #Processer/impl/aec/AECProcesser.cpp
+        Processer/impl/aec/AECProcesser.cpp
         Processer/impl/aec/AECProcesser.h
         Buffer/MyRefBuffer.cpp
         Buffer/MyRefBuffer.h
@@ -113,7 +114,7 @@ set(SRC main.cpp ProcessCenter.cpp
         Processer/impl/resample/BaseResampleAdapter.h
         Processer/impl/resample/SpeexResamplerAdapter.cpp
         Processer/impl/resample/SpeexResamplerAdapter.h
-        Processer/impl/aec/BaseAECAdapter.cpp Processer/impl/aec/BaseAECAdapter.h Processer/ProcessorConfig.cpp Processer/ProcessorConfig.h utils/DumpFileUtil.cpp utils/DumpFileUtil.h Processer/impl/slice/FrameSliceProcessor.cpp Processer/impl/slice/FrameSliceProcessor.h Processer/impl/slice/FrameSyntheticProcessor.cpp Processer/impl/slice/FrameSyntheticProcessor.h)
+        Processer/impl/aec/BaseAECAdapter.cpp Processer/impl/aec/BaseAECAdapter.h Processer/ProcessorConfig.cpp Processer/ProcessorConfig.h utils/DumpFileUtil.cpp utils/DumpFileUtil.h Processer/impl/slice/FrameSliceProcessor.cpp Processer/impl/slice/FrameSliceProcessor.h Processer/impl/slice/FrameSyntheticProcessor.cpp Processer/impl/slice/FrameSyntheticProcessor.h Processer/impl/aec/webrtc/WebrtcAec.cpp Processer/impl/aec/webrtc/WebrtcAec.h Processer/impl/aec/AECConfig.cpp Processer/impl/aec/AECConfig.h)
 
 set(CMAKE_CXX_STANDARD 11)
 add_executable(testStruct ${SRC})

@@ -12,6 +12,9 @@
 #include "api/audio/audio_frame.h"
 #include "EVDspProcess.h"
 #include "TEST_CONSTANT.h"
+#include "BaseAECAdapter.h"
+#include "TEST_CONSTANT.h"
+#include "DumpFileUtil.h"
 
 // 使用webrtc 的AEC模块进行 处理
 // 10ms 为一帧，需要输入 参考信号【远端】 和 麦克风信号【近端】 的原始信号
@@ -22,21 +25,26 @@
 class AECProcesser : public BaseProcesser {
     int getMsgIndex() override;
 
-    void process(DataMsg*) override;
+    void process(DataMsg *) override;
 
     ~AECProcesser();
 
 public:
     std::string getTag() override;
-    AECProcesser();
+
+    AECProcesser(const ProcessorConfig *cfg);
 
 private:
 
-    EVDspProcess dspProcess;
-    short linear_out_buffer[480] = {0};
-    short mRefBuffer[480] = {0};
-    short mMicBuffer[480] = {0};
+    BaseAECAdapter *mAECAdapter = nullptr;
+    TYPE_SAMPLE_t linear_out_buffer[CHANNEL_MIC * FRAME_SIZE_ONE] = {0};
+//    TYPE_SAMPLE_t mRefBuffer[CHANNEL_REF * FRAME_SIZE_ONE + 1] = {0};
+//    TYPE_SAMPLE_t mMicBuffer[CHANNEL_MIC * FRAME_SIZE_ONE] = {0};
     bool mAecRunning = false;
+
+#ifdef DEBUG_FILE
+    DumpFileUtil * dumpFile = nullptr;
+#endif
 };
 
 

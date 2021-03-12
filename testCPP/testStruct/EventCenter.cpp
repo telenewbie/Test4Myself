@@ -27,7 +27,7 @@ void EventCenter::send(DataMsg *msg) {
     if(msg->index>=mProcessers.size()){
         MsgCreator::getInstance()->destroyMsg(msg);
     }else{
-        mProcessers[msg->index]->notify(msg);
+        mProcessers[msg->index++]->notify(msg);
     }
 #if 0
     if (msg->index == 0) {

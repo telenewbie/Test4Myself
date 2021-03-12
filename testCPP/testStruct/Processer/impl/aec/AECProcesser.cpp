@@ -48,7 +48,7 @@ void AECProcesser::process(DataMsg *msg) {
 
 AECProcesser::AECProcesser(const ProcessorConfig *cfg) : BaseProcesser(cfg) {
     AECConfig config;
-    config.enableAGC = false;
+    config.enableAGC = true;
     config.sampleRate = cfg->mOutSampleRate;
     mAECAdapter = new AEC::WebrtcAec(std::move(config));
 #ifdef DEBUG_FILE

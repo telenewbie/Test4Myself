@@ -76,6 +76,6 @@ typedef float TYPE_SAMPLE_t;
 #define TEST_PCM_PATH (TEST_PCM_DIR TEST_PCM_NAME ".pcm")
 #define TEST_REF_PCM_PATH (TEST_PCM_DIR TEST_REF_PCM_NAME ".pcm")
 #define TEST_PCM_OUT_PATH (TEST_PCM_DIR TEST_PCM_NAME  "_out.pcm")
-const int MAX_BUFFER_LENGTH = 1000;//1s 的数据
+const int MAX_BUFFER_LENGTH = 10;//1s 的数据
 
 #endif //TEST_TEST_CONSTANT_H

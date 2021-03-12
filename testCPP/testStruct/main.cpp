@@ -27,7 +27,7 @@
 
 #endif
 
-#define SLEEP_TIME_MILLISECOND 1
+#define SLEEP_TIME_MILLISECOND 0
 #define MAIN_SLEEP_TIME 15
 
 
@@ -102,6 +102,9 @@ int main() {
     EventCenter::getInstance()->addRegister(new ResampleInProcesser(&config));
     EventCenter::getInstance()->addRegister(new AECProcesser(&config));
 //    EventCenter::getInstance()->addRegister(new DnnProcesser());
+//    EventCenter::getInstance()->addRegister(new DnnProcesser());//agc
+//    EventCenter::getInstance()->addRegister(new DnnProcesser());//vad
+//    EventCenter::getInstance()->addRegister(new DnnProcesser());//bf
     EventCenter::getInstance()->addRegister(new ResampleOutProcesser(&config));
     EventCenter::getInstance()->addRegister(new FrameSyntheticProcessor(&config));
 #else

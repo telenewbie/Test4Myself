@@ -1,7 +1,31 @@
 cmake_minimum_required(VERSION 3.10)
 project(testStruct)
 set(CMAKE_VERBOSE_MAKEFILE on)
-option(USE_ENGINE "need use engine to test" false)
+##################### options #########################################
+option(USE_ENGINE "need use engine to test" OFF)
+#option(USE_ELE_WEBRTC "use elevoc webrtc ?" OFF)
+set(USE_ELE_WEBRTC ON CACHE BOOL "use elevoc webrtc" FORCE)
+#######################################################################
+
+
+
+########################### AEC #######################################
+if(USE_ELE_WEBRTC)
+#    message(FATAL_ERROR 456)
+    # 包含 aec 头文件
+    include_directories(include/ele_aec)
+else()
+    message(FATAL_ERROR 452)
+endif()
+#######################################################################
+
+########################### DNN #######################################
+
+#######################################################################
+
+
+
+
 include_directories(. Buffer config dao Processer Processer/impl Processer/impl/aec/webrtc utils)
 include_directories(Processer/impl/aec)
 if (USE_ENGINE)
@@ -18,7 +42,7 @@ if (USE_ENGINE)
 
     set(EXT_LIB engine)
 else ()
-    #    message(FATAL_ERROR 123)
+#        message(FATAL_ERROR 123)
     set(EXT_DEF
             BUILDING_LIBCURL
             WEBRTC_WIN

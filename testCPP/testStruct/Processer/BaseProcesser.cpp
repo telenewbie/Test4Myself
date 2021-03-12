@@ -9,8 +9,8 @@
 void BaseProcesser::onNext(DataMsg *msg) {
     // 打包
     if (msg != nullptr) {
-        ++msg->index;
-        // 发包吧！！！
+//        ++msg->index; // 在别的地方进行 累加操作
+//         发包吧！！！
         EventCenter::getInstance()->send(msg);
     }
 }
@@ -30,6 +30,8 @@ void BaseProcesser::innerProcess() {
         if (!mIsRelease && mVecMsg.size() > 0) {
             if (mVecMsg.size() >= MAX_BUFFER_LENGTH) {
                 printf("processing is so fast , capacity is too small!!![%zu/%d]\n", mVecMsg.size(), MAX_BUFFER_LENGTH);
+            } else {
+                printf("[%s] is so fast [%zu/%d]\n", getTag().data(), mVecMsg.size(), MAX_BUFFER_LENGTH);
             }
             DataMsg *curMsg = mVecMsg.front();
             mVecMsg.pop();

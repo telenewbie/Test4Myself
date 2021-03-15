@@ -7,10 +7,6 @@
 
 
 #include <Processer/BaseProcesser.h>
-#include "modules/audio_processing/include/audio_processing.h"
-#include "api/audio/echo_canceller3_factory.h"
-#include "api/audio/audio_frame.h"
-#include "EVDspProcess.h"
 #include "TEST_CONSTANT.h"
 #include "BaseAECAdapter.h"
 #include "TEST_CONSTANT.h"

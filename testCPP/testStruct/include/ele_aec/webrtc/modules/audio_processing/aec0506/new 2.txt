@@ -1,7 +1,0 @@
-hnlFbIdx 0.5~0.9  越小 hnl上限越小
-hNlFb = hnl_sort[static_cast<int>(floor(aec->hnlFbIdx *
-				(PART_LEN1 - 1)))];
-%         hnled = min(hnlPrefAvg,min(hnled,GH1_n));  
-
-%             ovrd = max(log(0.00001)/(log(hnlMin + 1e-10) + 1e-10), 1);  
-            ovrd = max(hnlMin/(log(hnlMin + 1e-10) + 1e-10), 1);double talk

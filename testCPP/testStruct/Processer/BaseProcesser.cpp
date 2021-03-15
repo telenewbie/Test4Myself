@@ -30,8 +30,9 @@ void BaseProcesser::innerProcess() {
         if (!mIsRelease && mVecMsg.size() > 0) {
             if (mVecMsg.size() >= MAX_BUFFER_LENGTH) {
                 printf("processing is so fast , capacity is too small!!![%zu/%d]\n", mVecMsg.size(), MAX_BUFFER_LENGTH);
-            } else {
-                printf("[%s] is so fast [%zu/%d]\n", getTag().data(), mVecMsg.size(), MAX_BUFFER_LENGTH);
+            } else if (mVecMsg.size() >= MAX_BUFFER_LENGTH - 1) {
+                printf("[%s] is too slow,many block there [%zu/%d]\n", getTag().data(), mVecMsg.size(),
+                       MAX_BUFFER_LENGTH);
             }
             DataMsg *curMsg = mVecMsg.front();
             mVecMsg.pop();

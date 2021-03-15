@@ -1,3 +1,0 @@
-LSA + correlation
-2 channel output
-echochangepath select

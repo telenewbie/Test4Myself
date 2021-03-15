@@ -5,15 +5,11 @@
 #ifndef TEST1_WEBRTCAEC_H
 #define TEST1_WEBRTCAEC_H
 
-#error 1111
-
-#include "modules/audio_processing/include/audio_processing.h"
-#include "api/audio/echo_canceller3_factory.h"
-#include "api/audio/audio_frame.h"
 #include "BaseAECAdapter.h"
-#include "EVDspProcess.h"
 #include "TEST_CONSTANT.h"
+#include "EVAECProcess.h"
 
+//#define TELENEWBIE_TEST_AEC
 namespace AEC {
     class WebrtcAec : public BaseAECAdapter {
     public:
@@ -40,10 +36,12 @@ namespace AEC {
         void release() override;
 
     private:
-        EVDspProcess mDspProcess;
+#ifdef TELENEWBIE_TEST_AEC
+        EVAECProcess mProcess;
+#endif
         // 只能是10ms 的数据
-        short mTemp[FRAME_SIZE_ONE] = {0}; // 超过则有问题
-        short mLinearAECOut[FRAME_SIZE_ONE] = {0};
+        float mTemp[FRAME_SIZE_ONE] = {0}; // 超过则有问题
+        float mLinearAECOut[FRAME_SIZE_ONE] = {0};
     };
 }
 

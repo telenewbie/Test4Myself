@@ -8,15 +8,54 @@ set(USE_ELE_WEBRTC ON CACHE BOOL "use elevoc webrtc" FORCE)
 #######################################################################
 
 
-
 ########################### AEC #######################################
-if(USE_ELE_WEBRTC)
-#    message(FATAL_ERROR 456)
+if (USE_ELE_WEBRTC)
+    #    message(FATAL_ERROR 456)
     # 包含 aec 头文件
     include_directories(include/ele_aec)
-else()
+    include_directories(Processer/impl/aec/elevoc_webrtc)
+#    include_directories(lib/windows/openblas/x64/include)
+    set(AEC_FILES
+            Processer/impl/aec/elevoc_webrtc/WebrtcAec.cpp Processer/impl/aec/elevoc_webrtc/WebrtcAec.h
+#            Processer/impl/aec/elevoc_webrtc/EVAECProcess.cpp Processer/impl/aec/elevoc_webrtc/EVAECProcess.h
+            )
+
+    add_library(dsp STATIC IMPORTED)
+    set_target_properties(dsp
+            PROPERTIES IMPORTED_LOCATION
+#            D:/workspace/AndroidStudio/AndroidStudioProjects/MyApplication/app/src/main/cpp/src/thirdparty/webrtc_dsp/build/Windows-10.0.18363/x64/mydsp.lib
+#            ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/aec/x64/Debug/webrtc_aec.lib
+            ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/aec/x64/Debug/elevoc_teams_aec.lib
+            )
+    message(STATUS what :::${dsp})
+    add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
+    set(WEBRTC_DEF NDEBUG
+            ELEVOCNSENGINE_EXPORTS
+            CURL_STATICLIB
+            EVLIB_EXPORTS
+            _CRT_SECURE_NO_WARNINGS
+            _WINDOWS
+            _USRDLL
+            FLOATING_POINT
+            OUTSIDE_SPEEX
+            USE_SSE)
+else ()
     message(FATAL_ERROR 452)
-endif()
+    include_directories(include/aec)
+    include_directories(Processer/impl/aec/webrtc)
+    set(AEC_FILES
+            Processer/impl/aec/webrtc/WebrtcAec.cpp
+            Processer/impl/aec/webrtc/WebrtcAec.h
+            Processer/impl/aec/webrtc/EVDspProcess.cpp
+            Processer/impl/aec/webrtc/EVDspProcess.h
+            )
+
+    add_library(dsp STATIC IMPORTED)
+    set_target_properties(dsp
+            PROPERTIES IMPORTED_LOCATION
+            D:/workspace/AndroidStudio/AndroidStudioProjects/MyApplication/app/src/main/cpp/src/thirdparty/webrtc_dsp/build/Windows-10.0.18363/x64/mydsp.lib
+            )
+endif ()
 #######################################################################
 
 ########################### DNN #######################################
@@ -24,9 +63,7 @@ endif()
 #######################################################################
 
 
-
-
-include_directories(. Buffer config dao Processer Processer/impl Processer/impl/aec/webrtc utils)
+include_directories(. Buffer config dao Processer Processer/impl  utils)
 include_directories(Processer/impl/aec)
 if (USE_ENGINE)
     message(FATAL_ERROR 456)
@@ -42,7 +79,7 @@ if (USE_ENGINE)
 
     set(EXT_LIB engine)
 else ()
-#        message(FATAL_ERROR 123)
+    #        message(FATAL_ERROR 123)
     set(EXT_DEF
             BUILDING_LIBCURL
             WEBRTC_WIN
@@ -58,12 +95,12 @@ else ()
             -DFLOATING_POINT
             )
     include_directories(include/dnn Processer/impl/resample)
-    include_directories(include/aec)
+
     set(EXT_SRC
             #Processer/impl/dnn/DnnProcesser.cpp
             Processer/impl/dnn/DnnProcesser.h
             Processer/impl/resample/speex/resample.c
-            Processer/impl/aec/webrtc/EVDspProcess.cpp
+
             )
     add_library(dnn STATIC IMPORTED)
     set_target_properties(dnn
@@ -71,18 +108,13 @@ else ()
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/SingleChannelNSDNNPro.lib
             )
 
-        add_library(dsp STATIC IMPORTED)
-        set_target_properties(dsp
-                PROPERTIES IMPORTED_LOCATION
-                D:/workspace/AndroidStudio/AndroidStudioProjects/MyApplication/app/src/main/cpp/src/thirdparty/webrtc_dsp/build/Windows-10.0.18363/x64/mydsp.lib
-                )
+
 
     add_library(myshared SHARED sharedlibrary.cpp)
     target_link_libraries(myshared PRIVATE dnn
             )
-#    set_target_properties(myshared PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:SingleChannelNSDNNPro ")
-    set_target_properties(myshared PROPERTIES LINK_OPTIONS  "/WHOLEARCHIVE:$<TARGET_FILE_NAME:dnn> ")
-
+    #    set_target_properties(myshared PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:SingleChannelNSDNNPro ")
+    set_target_properties(myshared PROPERTIES LINK_OPTIONS "/WHOLEARCHIVE:$<TARGET_FILE_NAME:dnn> ")
 
     set(EXT_LIB
             myshared
@@ -94,7 +126,7 @@ else ()
             )
 endif ()
 set(WIN_REL_FLAGS $<1:Release>)
-#add_compile_options("$<$<CONFIG:DEBUG>:/MDd>")
+
 #add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 
 #set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} "$<$<CONFIG:Release>:/MT">)
@@ -122,6 +154,7 @@ set(SRC main.cpp ProcessCenter.cpp
         Processer/impl/FinalProcesser.cpp
         Processer/impl/FinalProcesser.h
         ${EXT_SRC}
+        ${AEC_FILES}
         Processer/ProcesserPori.h
         Processer/impl/resample/ResampleInProcesser.cpp
         Processer/impl/resample/ResampleInProcesser.h
@@ -138,11 +171,16 @@ set(SRC main.cpp ProcessCenter.cpp
         Processer/impl/resample/BaseResampleAdapter.h
         Processer/impl/resample/SpeexResamplerAdapter.cpp
         Processer/impl/resample/SpeexResamplerAdapter.h
-        Processer/impl/aec/BaseAECAdapter.cpp Processer/impl/aec/BaseAECAdapter.h Processer/ProcessorConfig.cpp Processer/ProcessorConfig.h utils/DumpFileUtil.cpp utils/DumpFileUtil.h Processer/impl/slice/FrameSliceProcessor.cpp Processer/impl/slice/FrameSliceProcessor.h Processer/impl/slice/FrameSyntheticProcessor.cpp Processer/impl/slice/FrameSyntheticProcessor.h Processer/impl/aec/webrtc/WebrtcAec.cpp Processer/impl/aec/webrtc/WebrtcAec.h Processer/impl/aec/AECConfig.cpp Processer/impl/aec/AECConfig.h)
+        Processer/impl/aec/BaseAECAdapter.cpp Processer/impl/aec/BaseAECAdapter.h Processer/ProcessorConfig.cpp Processer/ProcessorConfig.h utils/DumpFileUtil.cpp utils/DumpFileUtil.h Processer/impl/slice/FrameSliceProcessor.cpp Processer/impl/slice/FrameSliceProcessor.h Processer/impl/slice/FrameSyntheticProcessor.cpp Processer/impl/slice/FrameSyntheticProcessor.h
+
+        Processer/impl/aec/AECConfig.cpp
+        Processer/impl/aec/AECConfig.h)
 
 set(CMAKE_CXX_STANDARD 11)
 add_executable(testStruct ${SRC})
-target_compile_definitions(testStruct PUBLIC DNN_EVLIB_EXPORTS EVLIB_EXPORTS DEBUG ${EXT_DEF})
+target_compile_definitions(testStruct PUBLIC DNN_EVLIB_EXPORTS EVLIB_EXPORTS DEBUG ${EXT_DEF}
+        ${WEBRTC_DEF}
+        )
 
 #target_compile_options(testStruct PUBLIC /MT)
 

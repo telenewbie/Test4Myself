@@ -4,12 +4,9 @@
 
 #include <Processer/ProcesserPori.h>
 #include <TEST_CONSTANT.h>
-#include <utils/EVPCMHelper.h>
 #include "AECProcesser.h"
 
 #include "WebrtcAec.h"
-
-using namespace webrtc;
 
 int AECProcesser::getMsgIndex() {
     return PORI_AEC;

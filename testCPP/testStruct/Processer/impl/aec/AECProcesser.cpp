@@ -31,7 +31,7 @@ void AECProcesser::process(DataMsg *msg) {
                         aec_sample_num);
 #endif
         // 远端数据
-        mAecAdapters[i]->writeFarFrame(&msg->refBuff[msg->mic_buff_size * i], aec_sample_num);
+        mAecAdapters[i]->writeFarFrame(&msg->refBuff[msg->mic_buff_size * (i % CHANNEL_REF)], aec_sample_num);
         int out_len = msg->sample_num, linear_out_len = msg->sample_num;
         // 近端数据
         mAecAdapters[i]->writeNearFrame(&msg->micBuff[msg->mic_buff_size * i], aec_sample_num,

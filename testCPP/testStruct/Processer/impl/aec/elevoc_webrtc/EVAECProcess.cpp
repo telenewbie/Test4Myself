@@ -17,7 +17,7 @@ int EVAECProcess::ElevocAecProcess(size_t nDataLen, float *szInData, float *aecL
 //	convertFloatMulGain(szInData, nDataLen, aec_near_buffer_copy_with_gain);
 
     float *sInPointer = (float *)szInData;
-    
+#ifdef TELENEWBIE_XXX
     if (samplerate == 48000) {
         IFChannelBuffer* bufIn=(IFChannelBuffer*) splittingFilterIn;
         IFChannelBuffer* bufOut=(IFChannelBuffer*) splittingFilterOut;
@@ -138,61 +138,9 @@ int EVAECProcess::ElevocAecProcess(size_t nDataLen, float *szInData, float *aecL
 		memcpy(aecLinearOut, m_sLinearOutNear_frame, sizeof(float) * DataLen);
 		memcpy(aecOutPut, m_sOutNear_frame, sizeof(float) * DataLen);
     }
-    
+#endif
+
     return 0;
-}
-
-void EVAECProcess::processAgc(float* audio, int len, float* output) {
-	if (samplerate == 48000) {
-
-
-		IFChannelBuffer* bufIn = (IFChannelBuffer*)splittingFilterNSIn;
-		IFChannelBuffer* bufOut = (IFChannelBuffer*)splittingFilterNSOut;
-
-		memcpy(bufIn->fbuf()->bands(0)[0], audio, len * sizeof(float));
-
-		((SplittingFilter*)splittingFilterNS)->Analysis(bufIn, bufOut);
-
-		const float* agcIn[3];
-		float* agcOut[3]; float _agcOut[3][160];
-
-		for (int i = 0; i < 3; i++) {
-			agcIn[i] = bufOut->fbuf_const()->bands(0)[i];
-			agcOut[i] = _agcOut[i];
-		}
-
-		const int16_t* agcIn_s[3]; int16_t _agcin_s[3][160];
-		int16_t* agcOut_s[3]; int16_t _agcOut_s[3][160];
-		for (int i = 0; i < 3; ++i) {
-			agcIn_s[i] = _agcin_s[i];
-			agcOut_s[i] = _agcOut_s[i];
-			for (int j = 0; j < 160; ++j)
-				_agcin_s[i][j] = (short)(agcIn[i][j] * 32767);
-		}
-
-		int inMicLevel = 0, outMicLevel = -1;
-		int16_t echo = 0;
-		uint8_t saturationWarning = 1;
-		WebRtcAgc_Process(agcInst, (const int16_t* const*)&agcIn_s, 3, 160,
-			(int16_t* const*)&agcOut_s, inMicLevel, &outMicLevel, echo,
-			&saturationWarning);
-
-		for (int i = 0; i < 3; ++i) {
-			for (int j = 0; j < 160; ++j)
-				_agcOut[i][j] = (agcOut_s[i][j] / 32767.f);
-		}
-
-		memcpy(bufOut->fbuf()->bands(0)[0], agcOut[0], 160 * sizeof(float));
-		memcpy(bufOut->fbuf()->bands(0)[1], agcOut[1], 160 * sizeof(float));
-		memcpy(bufOut->fbuf()->bands(0)[2], agcOut[2], 160 * sizeof(float));
-
-		((webrtc::SplittingFilter*)splittingFilterNS)->Synthesis(bufOut, bufIn);
-		memcpy(output, bufIn->fbuf_const()->bands(0)[0], 480 * sizeof(float));
-
-		//for (int i = 0; i < 480; ++i) {
-		//	output[i] = tmpAudio[i] / 32767.0f;
-		//}
-	}
 }
 
 void EVAECProcess::aec_init(int samplerate) {
@@ -249,11 +197,13 @@ void EVAECProcess::start(){
 void EVAECProcess::writeFarendAudio(const float *audioData, size_t len)  {
 
 //        以下操作只针对 48000 k 数据
+#ifdef TELENEWBIE_XXX
     static_assert(ELEVOC_DNN_SAMPLERATE_48K == TEST_SAMPLE_RATE, "only support 48000 sample rate!!!");
     webrtc::IFChannelBuffer* bufIn=(webrtc::IFChannelBuffer*) splittingFilterFarendIn;
     webrtc::IFChannelBuffer* bufOut=(webrtc::IFChannelBuffer*) splittingFilterFarendOut;
     memcpy(bufIn->fbuf()->bands(0)[0], audioData, len * sizeof(float));
     WebRtcAec_BufferFarend(this->aecInst, bufOut->fbuf_const()->bands(0)[0], 160);
+#endif
 }
 
 void EVAECProcess::clean_buffer() {
@@ -311,6 +261,7 @@ void EVAECProcess::setSamplerate(int sampleRate) {
 }
 
 EVAECProcess::~EVAECProcess() {
+#ifdef TELENEWBIE_XXX
     if (splittingFilter != NULL) {
         delete (webrtc::SplittingFilter*)splittingFilter;
     }
@@ -352,6 +303,7 @@ EVAECProcess::~EVAECProcess() {
     if (splittingFilterNSOut != NULL) {
         delete (webrtc::IFChannelBuffer*)splittingFilterNSOut;
     }
+#endif
 
     aec_free();
 
@@ -375,7 +327,7 @@ EVAECProcess::EVAECProcess() {
     this->aecInst = NULL;
 
 //        farendQueue.setQueName("farendQue");
-
+#ifdef TELENEWBIE_XXX
     splittingFilter=new webrtc::SplittingFilter(1, 3, 480);
     splittingFilterIn=new webrtc::IFChannelBuffer(480, 1, 1);
     splittingFilterOut=new webrtc::IFChannelBuffer(480, 1, 3);
@@ -391,7 +343,7 @@ EVAECProcess::EVAECProcess() {
     splittingFilterNS = new webrtc::SplittingFilter(1, 3, 480);
     splittingFilterNSIn = new webrtc::IFChannelBuffer(480, 1, 1);
     splittingFilterNSOut = new webrtc::IFChannelBuffer(480, 1, 3);
-
+#endif
     WebRtcAgcConfig agcConfig;
     agcConfig.compressionGaindB = 30; // default 9 dB
     agcConfig.limiterEnable = 1; 	// default kAgcTrue (on)

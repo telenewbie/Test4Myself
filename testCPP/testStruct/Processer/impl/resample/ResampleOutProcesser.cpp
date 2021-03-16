@@ -36,10 +36,12 @@ void ResampleOutProcesser::process(DataMsg *msg) {
 }
 
 bool ResampleOutProcesser::canProcess(DataMsg *msg) {
+    if (msg->outSampleRate == msg->inSampleRate) return false;
     return msg->inSampleRate != SAMPLE_RATE_16k && msg->outSampleRate == SAMPLE_RATE_16k;
 }
 
 ResampleOutProcesser::ResampleOutProcesser(ProcessorConfig *cfg) : BaseProcesser(cfg) {
+    if (cfg->mInSampleRate == cfg->mOutSampleRate || cfg->mInSampleRate == 0 || cfg->mOutSampleRate == 0) return;
     for (int i = 0; i < cfg->mMicChannel; ++i) {
         resampleNears[i] = new RESAMPLE_TYPE();
         resampleNears[i]->initSample(cfg->mMicChannel, cfg->mOutSampleRate, cfg->mInSampleRate);

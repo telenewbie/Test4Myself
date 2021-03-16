@@ -13,7 +13,8 @@
 #include "ElevocLog.h"
 #include <string>
 #include "Elevoc_NS.h"
-//#define ENABLE_AEC
+#define ENABLE_AEC
+#define TELENEWBIE_XXX
 #ifdef ENABLE_AEC
 
 #include "webrtc/modules/audio_processing/aec/echo_cancellation.h"
@@ -37,34 +38,7 @@ public:
 
     ~EVAECProcess();
 
-//    void notifyChangeToSpeaker(){
-//        this->aecInst->aec->cur_divergence = 50;
-//    }
-
-//    void setDumpAudioDir(std::string dir) {
-//        dumpDir = dir;
-//    }
-//
-//    void enableDumpFarAudio(bool enable) {
-//        dumpFarAudio = enable;
-//    }
-//
-//	void setVolumeValue(int value) {
-//		volumeValue = value;
-//	}
-//
-//	void ns_post_spec(float spec[2][481], float* aec_farend, float post_alpha, float post_psdth_L) {
-//		webrtc::ns_post_spectrum(aecInst, spec, aec_farend, post_alpha, post_psdth_L);
-//	}
-//
-//	void postProcess(float* input, int len) {
-//		webrtc::fdesignParameq(input, len, input);
-//		webrtc::fdesignParameq2(input, len, input);
-//	}
-
     void setSamplerate(int sampleRate);
-
-	void processAgc(float* audio, int len, float* output);
 
     void start( );
 
@@ -93,6 +67,7 @@ private:
 	void* agcInst;
 
     webrtc::Aec *aecInst;
+#ifdef TELENEWBIE_XXX
     void* splittingFilter; // webrtc::SplittingFilter
     void* splittingFilterIn; // webrtc::IFChannelBuffer
     void* splittingFilterOut; // webrtc::IFChannelBuffer
@@ -108,7 +83,8 @@ private:
 	void* splittingFilterNS;
 	void* splittingFilterNSIn;
 	void* splittingFilterNSOut;
-    
+
+#endif
 //	EVByteQueue farendQueue;
 
 //    float aec_farend_Buffer[AEC_MAX_FRAME_BYTE_SIZE];

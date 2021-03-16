@@ -6,13 +6,8 @@
 #include "WebrtcAec.h"
 #include <limits>
 
-FILE *fp1 = nullptr;
-FILE *fp2 = nullptr;
-FILE *fp3 = nullptr;
-FILE *fp4 = nullptr;
-FILE *fp5 = nullptr;
-FILE *fp6 = nullptr;
 
+static int channel_index = 0;
 typedef std::numeric_limits<int16_t> limits_int16;
 
 static inline int16_t FloatToS16(float v) {
@@ -29,42 +24,84 @@ static inline float S16ToFloat(int16_t v) {
     return v * (v > 0 ? kMaxInt16Inverse : -kMinInt16Inverse);
 }
 
-AEC::WebrtcAec::WebrtcAec(const AECConfig &cfg) : BaseAECAdapter(cfg) {
+static inline float FloatToFloatS16(float v) {
+    v = std::min(v, 1.f);
+    v = std::max(v, -1.f);
+    return v * 32768.f;
+}
 
+static inline float FloatS16ToFloat(float v) {
+    v = std::min(v, 32768.f);
+    v = std::max(v, -32768.f);
+    constexpr float kScaling = 1.f / 32768.f;
+    return v * kScaling;
+}
+
+static inline FILE *createFD(const std::string &prefix, int index) {
+    std::stringstream path;
+    path << TEST_PCM_DIR << prefix << index << ".pcm";
+
+    return fopen(path.str().data(), "wb+");
+}
+
+
+AEC::WebrtcAec::WebrtcAec(const AECConfig &cfg) : BaseAECAdapter(cfg) {
+    ++channel_index;
 #ifdef TELENEWBIE_TEST_AEC
     mProcess.setSamplerate(cfg.sampleRate);
 #endif
 
-    fp1 = fopen(TEST_PCM_DIR"tmp_aec_aecnearfloat.pcm", "wb+");
-    fp2 = fopen(TEST_PCM_DIR"tmp_aec_aecnearshort.pcm", "wb+");
-    fp3 = fopen(TEST_PCM_DIR"tmp_aec_aecnearProShort.pcm", "wb+");
-    fp4 = fopen(TEST_PCM_DIR"tmp_aec_aecnearProFloat.pcm", "wb+");
-    fp5 = fopen(TEST_PCM_DIR"tmp_aec_aecfarFloat.pcm", "wb+");
-    fp6 = fopen(TEST_PCM_DIR"tmp_aec_aecfarShort.pcm", "wb+");
+
+    fp1 = createFD("tmp_aec_aecnearfloat_", channel_index);
+    fp2 = createFD("tmp_aec_aecnearshort_", channel_index);
+    fp3 = createFD("tmp_aec_aecnearProShort_", channel_index);
+    fp4 = createFD("tmp_aec_aecnearProFloat_", channel_index);
+    fp5 = createFD("tmp_aec_aecfarFloat_", channel_index);
+    fp6 = createFD("tmp_aec_aecfarShort_", channel_index);
 }
 
 
 int AEC::WebrtcAec::writeFarFrame(short *data, int frames) {
     // short  to  float
+    fwrite(data, sizeof(short), frames, fp6);
+    for (int i = 0; i < frames; ++i) {
+        mTemp[i] = 1.0f * data[i];
+    }
+
+    int err = writeFarFrame(mTemp, frames);
     for (int i = 0; i < frames; ++i) {
         mTemp[i] = S16ToFloat(data[i]);
     }
-    return writeFarFrame(mTemp, frames);
+    fwrite(mTemp, sizeof(float), frames, fp5);
+
+    return err;
 }
 
 int AEC::WebrtcAec::writeNearFrame(short *data, int frames, short *outData, int &outFrames, short *linearOut,
                                    int &linearFrames) {
 
+    fwrite(data, sizeof(short), frames, fp2);
     for (int i = 0; i < frames; ++i) {
         mTemp[i] = S16ToFloat(data[i]);
     }
+    fwrite(mTemp, sizeof(float), frames, fp1);
+    for (int i = 0; i < frames; ++i) {
+        mTemp[i] = data[i] * 1.0;
+    }
+
     int err = writeNearFrame(mTemp, frames, mTemp, outFrames, mLinearAECOut, linearFrames);
 
     for (int i = 0; i < outFrames; ++i) {
-        outData[i] = FloatToS16(mTemp[i]);
+        outData[i] = (short) mTemp[i];//+-1
     }
+    fwrite(outData, sizeof(short), outFrames, fp3);
+    for (int i = 0; i < outFrames; ++i) {
+        mTemp[i] = FloatS16ToFloat(mTemp[i]);
+    }
+    fwrite(mTemp, sizeof(float), outFrames, fp4);
+
     for (int i = 0; i < linearFrames; ++i) {
-        linearOut[i] = FloatToS16(mLinearAECOut[i]);
+        linearOut[i] = (short) (mLinearAECOut[i]);
     }
 
     return err;
@@ -84,7 +121,7 @@ int AEC::WebrtcAec::writeNearFrame(float *data, int frames, float *outData, int 
         return -1;
     }
 #ifdef TELENEWBIE_TEST_AEC
-    return mProcess.ElevocAecProcess(frames, data, linearOut, outData, 0);
+    return mProcess.ElevocAecProcess(frames, data, linearOut, outData, 1);
 #else
     return 0;
 #endif

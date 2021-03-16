@@ -100,7 +100,7 @@ int main() {
 
     EventCenter::getInstance()->addRegister(new FrameSliceProcessor(&config));
     EventCenter::getInstance()->addRegister(new ResampleInProcesser(&config));
-//    EventCenter::getInstance()->addRegister(new AECProcesser(&config));
+    EventCenter::getInstance()->addRegister(new AECProcesser(&config));
 //    EventCenter::getInstance()->addRegister(new DnnProcesser());
 //    EventCenter::getInstance()->addRegister(new DnnProcesser());//agc
 //    EventCenter::getInstance()->addRegister(new DnnProcesser());//vad

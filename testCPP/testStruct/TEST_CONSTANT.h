@@ -11,7 +11,7 @@
 #define TELENEWBIE_48000_c2_b16
 //#define TELENEWBIE_48000_c1_f32
 //#define TELENEWBIE_48000_c4_f32
-#define RESAMPLE_OUT_RATE 16000
+//#define RESAMPLE_OUT_RATE 16000
 #define FRAME_TIME_MILLISECOND 10
 
 #define DEBUG_FILE
@@ -22,6 +22,7 @@
 #define TEST_PCM_NAME "48000_c2_b16_near" // 16000_c1_16b.pcm
 #define TEST_REF_PCM_NAME "48000_c2_b16_far" // 16000_c1_16b.pcm
 #define TEST_SAMPLE_RATE 48000
+#define RESAMPLE_OUT_RATE 48000
 #define CHANNEL_MIC 2
 #define CHANNEL_REF 2
 typedef int16_t TYPE_SAMPLE_t;

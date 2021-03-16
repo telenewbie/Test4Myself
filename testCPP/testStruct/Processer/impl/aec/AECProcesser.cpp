@@ -16,7 +16,10 @@ void AECProcesser::process(DataMsg *msg) {
 
     static_assert(CHANNEL_MIC == CHANNEL_REF, "mic num must same with ref num ");
     if (!mAecRunning) {
-        mAecRunning = mAECAdapter->start();
+        for (int i = 0; i < msg->micChannel; ++i) {
+            if (mAecAdapters[i])
+                mAecRunning = mAecAdapters[i]->start();
+        }
     }
 
     int aec_sample_num = msg->sample_num;
@@ -28,12 +31,12 @@ void AECProcesser::process(DataMsg *msg) {
                         aec_sample_num);
 #endif
         // 远端数据
-        mAECAdapter->writeFarFrame(&msg->refBuff[msg->mic_buff_size * i], aec_sample_num);
-        int out_len = 0, linear_out_len = 0;
+        mAecAdapters[i]->writeFarFrame(&msg->refBuff[msg->mic_buff_size * i], aec_sample_num);
+        int out_len = msg->sample_num, linear_out_len = msg->sample_num;
         // 近端数据
-        mAECAdapter->writeNearFrame(&msg->micBuff[msg->mic_buff_size * i], aec_sample_num,
-                                    &msg->micBuff[msg->mic_buff_size * i], out_len,
-                                    &linear_out_buffer[msg->mic_buff_size * i], linear_out_len);
+        mAecAdapters[i]->writeNearFrame(&msg->micBuff[msg->mic_buff_size * i], aec_sample_num,
+                                        &msg->micBuff[msg->mic_buff_size * i], out_len,
+                                        &linear_out_buffer[msg->mic_buff_size * i], linear_out_len);
 #ifdef DEBUG_FILE
         dumpFile->write(DumpFileUtil::OUT_MIC, i, &msg->micBuff[msg->mic_buff_size * i], sizeof(TYPE_SAMPLE_t),
                         out_len);
@@ -47,15 +50,24 @@ AECProcesser::AECProcesser(const ProcessorConfig *cfg) : BaseProcesser(cfg) {
     AECConfig config;
     config.enableAGC = true;
     config.sampleRate = cfg->mOutSampleRate;
-    mAECAdapter = new AEC::WebrtcAec(std::move(config));
+
+    for (int i = 0; i < cfg->mMicChannel; ++i) {
+        mAecAdapters[i] = new AEC::WebrtcAec(config);
+    }
+
 #ifdef DEBUG_FILE
     dumpFile = new DumpFileUtil(cfg, "aec_");
 #endif
 }
 
 AECProcesser::~AECProcesser() {
-    mAECAdapter->release();
-    delete mAECAdapter;
+    for (auto &adapter:mAecAdapters) {
+        if (adapter) {
+            adapter->release();
+            delete adapter;
+            adapter = nullptr;
+        }
+    }
 #ifdef DEBUG_FILE
     delete dumpFile;
 #endif

@@ -9,7 +9,7 @@
 #include "TEST_CONSTANT.h"
 #include "EVAECProcess.h"
 
-//#define TELENEWBIE_TEST_AEC
+#define TELENEWBIE_TEST_AEC
 namespace AEC {
     class WebrtcAec : public BaseAECAdapter {
     public:
@@ -38,6 +38,14 @@ namespace AEC {
     private:
 #ifdef TELENEWBIE_TEST_AEC
         EVAECProcess mProcess;
+#endif
+#ifdef DEBUG_FILE
+        FILE *fp1 = nullptr;
+        FILE *fp2 = nullptr;
+        FILE *fp3 = nullptr;
+        FILE *fp4 = nullptr;
+        FILE *fp5 = nullptr;
+        FILE *fp6 = nullptr;
 #endif
         // 只能是10ms 的数据
         float mTemp[FRAME_SIZE_ONE] = {0}; // 超过则有问题

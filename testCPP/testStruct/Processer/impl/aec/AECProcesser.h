@@ -32,7 +32,9 @@ public:
 
 private:
 
-    BaseAECAdapter *mAECAdapter = nullptr;
+    // 每个通道一个处理器
+    std::array<BaseAECAdapter*,CHANNEL_MIC> mAecAdapters;
+//    BaseAECAdapter *mAECAdapter = nullptr;
     TYPE_SAMPLE_t linear_out_buffer[CHANNEL_MIC * FRAME_SIZE_ONE] = {0};
 //    TYPE_SAMPLE_t mRefBuffer[CHANNEL_REF * FRAME_SIZE_ONE + 1] = {0};
 //    TYPE_SAMPLE_t mMicBuffer[CHANNEL_MIC * FRAME_SIZE_ONE] = {0};

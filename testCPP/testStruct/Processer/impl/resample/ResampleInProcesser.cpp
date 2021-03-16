@@ -47,6 +47,7 @@ void ResampleInProcesser::process(DataMsg *msg) {
 }
 
 bool ResampleInProcesser::canProcess(DataMsg *msg) {
+    if(msg->inSampleRate == msg->outSampleRate) return false;
     return msg->inSampleRate == SAMPLE_RATE_441k || msg->inSampleRate == SAMPLE_RATE_32k ||
            msg->inSampleRate == SAMPLE_RATE_48k;
 }
@@ -82,7 +83,7 @@ std::string ResampleInProcesser::getTag() {
 }
 
 ResampleInProcesser::ResampleInProcesser(ProcessorConfig *cfg) : BaseProcesser(cfg) {
-    if (cfg->mOutSampleRate == 0 || cfg->mInSampleRate == 0) {
+    if (cfg->mOutSampleRate == 0 || cfg->mInSampleRate == 0 || cfg->mOutSampleRate == cfg->mInSampleRate) {
         LOGE("input sampleRate error!!!!!");
         return;
     }

@@ -17,7 +17,7 @@ if (USE_ELE_WEBRTC)
 #    include_directories(lib/windows/openblas/x64/include)
     set(AEC_FILES
             Processer/impl/aec/elevoc_webrtc/WebrtcAec.cpp Processer/impl/aec/elevoc_webrtc/WebrtcAec.h
-#            Processer/impl/aec/elevoc_webrtc/EVAECProcess.cpp Processer/impl/aec/elevoc_webrtc/EVAECProcess.h
+            Processer/impl/aec/elevoc_webrtc/EVAECProcess.cpp Processer/impl/aec/elevoc_webrtc/EVAECProcess.h
             )
 
     add_library(dsp STATIC IMPORTED)
@@ -27,8 +27,10 @@ if (USE_ELE_WEBRTC)
 #            ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/aec/x64/Debug/webrtc_aec.lib
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/aec/x64/Debug/elevoc_teams_aec.lib
             )
+
     message(STATUS what :::${dsp})
     add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
+    add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
     set(WEBRTC_DEF NDEBUG
             ELEVOCNSENGINE_EXPORTS
             CURL_STATICLIB
@@ -39,6 +41,10 @@ if (USE_ELE_WEBRTC)
             FLOATING_POINT
             OUTSIDE_SPEEX
             USE_SSE)
+
+    set(WEBRTC_LIBS
+            dsp
+            )
 else ()
     message(FATAL_ERROR 452)
     include_directories(include/aec)
@@ -113,12 +119,11 @@ else ()
     add_library(myshared SHARED sharedlibrary.cpp)
     target_link_libraries(myshared PRIVATE dnn
             )
-    #    set_target_properties(myshared PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:SingleChannelNSDNNPro ")
     set_target_properties(myshared PROPERTIES LINK_OPTIONS "/WHOLEARCHIVE:$<TARGET_FILE_NAME:dnn> ")
 
     set(EXT_LIB
             myshared
-            dsp
+            ${WEBRTC_LIBS}
             Wldap32.lib
             ws2_32.lib
             #[==[时间函数timeGetTime]==]

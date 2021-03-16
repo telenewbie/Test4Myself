@@ -4,9 +4,7 @@
 
 #include "HelloProcesser.h"
 #include "ElevocLog.h"
-int HelloProcesser::getMsgIndex() {
-    return 0;
-}
+
 
 void HelloProcesser::process(DataMsg* msg) {
     LOGD("hello:%d",msg->index);

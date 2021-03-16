@@ -15,9 +15,9 @@ private:
 public:
     static MyRefBuffer *getInstance();
 
-    int write(char *data, int len);
+    size_t write(char *data, size_t len);
 
-    int read(char *data, int len);
+    size_t read(char *data, size_t len);
 
 };
 

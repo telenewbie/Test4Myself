@@ -43,7 +43,7 @@ DumpFileUtil::~DumpFileUtil() {
         for (auto &fp:item.second) {
             if (fp) {
                 fclose(fp);
-                fp == nullptr;
+                fp = nullptr;
             }
         }
     }

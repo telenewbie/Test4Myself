@@ -56,10 +56,6 @@ std::string FrameSyntheticProcessor::getTag() {
     return "FrameSyntheticProcessor";
 }
 
-int FrameSyntheticProcessor::getMsgIndex() {
-    return 0;
-}
-
 bool FrameSyntheticProcessor::canProcess(DataMsg *) {
     return CHANNEL_MIC > 1;
 }

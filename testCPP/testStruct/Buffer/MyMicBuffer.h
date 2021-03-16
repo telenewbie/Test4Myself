@@ -17,9 +17,9 @@ class MyMicBuffer {
 public:
     static MyMicBuffer *getInstance();
 
-    int write(char *data, int len);
+    size_t write(char *data, size_t len);
 
-    int read(char *data, int len);
+    size_t read(char *data, size_t len);
 
 //    int write(short *data, int sampleLen);
 //    int write(float *data, int sampleLen);

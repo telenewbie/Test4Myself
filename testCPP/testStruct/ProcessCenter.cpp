@@ -29,12 +29,12 @@ void ProcessCenter::start() {
             return;
         }
         LOGD("ProcessCenter msg:[%p]%d:%d:%lld", msg, msg->inSampleRate, msg->outSampleRate, sizeof(TYPE_SAMPLE_t));
-        int readLen = MyMicBuffer::getInstance()->read((char *) msg->micBuff, READ_MIC_SIZE);
+        size_t readLen = MyMicBuffer::getInstance()->read((char *) msg->micBuff, READ_MIC_SIZE);
         MyRefBuffer::getInstance()->read((char *) msg->refBuff, READ_REF_SIZE);
         fwrite(msg->refBuff, sizeof(TYPE_SAMPLE_t), READ_REF_SIZE / sizeof(TYPE_SAMPLE_t), fpRef);
 
         LOGD("ProcessCenter msg:[%p]%d:%d:%lld", msg, msg->inSampleRate, msg->outSampleRate, sizeof(TYPE_SAMPLE_t));
-        LOGD("[%s]read size:%d", __FILE__, readLen);
+        LOGD("[%s]read size:%zu", __FILE__, readLen);
 
         EventCenter::getInstance()->send(msg);
     }

@@ -2,7 +2,6 @@
 // Created by Elevoc on 2021/1/7 0007.
 //
 
-#include <Processer/ProcesserPori.h>
 #include <TEST_CONSTANT.h>
 #include <string>
 #include "ResampleInProcesser.h"
@@ -10,9 +9,6 @@
 
 using RESAMPLE_TYPE = SpeexResamplerAdapter;
 
-int ResampleInProcesser::getMsgIndex() {
-    return PORI_RESAMPLE_IN;
-}
 
 
 void ResampleInProcesser::process(DataMsg *msg) {

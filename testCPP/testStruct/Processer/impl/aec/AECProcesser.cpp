@@ -2,15 +2,10 @@
 // Created by Elevoc on 2021/1/8 0008.
 //
 
-#include <Processer/ProcesserPori.h>
 #include <TEST_CONSTANT.h>
 #include "AECProcesser.h"
 
 #include "WebrtcAec.h"
-
-int AECProcesser::getMsgIndex() {
-    return PORI_AEC;
-}
 
 void AECProcesser::process(DataMsg *msg) {
 
@@ -47,7 +42,7 @@ void AECProcesser::process(DataMsg *msg) {
 }
 
 AECProcesser::AECProcesser(const ProcessorConfig *cfg) : BaseProcesser(cfg) {
-    AECConfig config;
+    AECConfig config{};
     config.enableAGC = true;
     config.sampleRate = cfg->mOutSampleRate;
 

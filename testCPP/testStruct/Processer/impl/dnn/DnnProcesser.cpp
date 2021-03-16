@@ -5,14 +5,10 @@
 #include <EVPCMHelper.h>
 #include "DnnProcesser.h"
 #include "EVProcessEnumType.h"
-#include "ProcesserPori.h"
 #include "ElevocLog.h"
 
 FILE* fpdnn = nullptr;
 
-int DnnProcesser::getMsgIndex() {
-    return PORI_DNN_NS;
-}
 
 void DnnProcesser::process(DataMsg* msg) {
 

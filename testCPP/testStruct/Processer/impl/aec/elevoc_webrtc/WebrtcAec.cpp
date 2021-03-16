@@ -86,7 +86,7 @@ int AEC::WebrtcAec::writeNearFrame(short *data, int frames, short *outData, int 
     }
     fwrite(mTemp, sizeof(float), frames, fp1);
     for (int i = 0; i < frames; ++i) {
-        mTemp[i] = data[i] * 1.0;
+        mTemp[i] = 1.0f * data[i];
     }
 
     int err = writeNearFrame(mTemp, frames, mTemp, outFrames, mLinearAECOut, linearFrames);

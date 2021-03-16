@@ -2,16 +2,12 @@
 // Created by Elevoc on 2021/1/7 0007.
 //
 
-#include <Processer/ProcesserPori.h>
 #include "ResampleOutProcesser.h"
 #include "TEST_CONSTANT.h"
 #include "SpeexResamplerAdapter.h"
 
 using RESAMPLE_TYPE = SpeexResamplerAdapter;
 
-int ResampleOutProcesser::getMsgIndex() {
-    return PORI_RESAMPLE_OUT;
-}
 
 void ResampleOutProcesser::process(DataMsg *msg) {
 

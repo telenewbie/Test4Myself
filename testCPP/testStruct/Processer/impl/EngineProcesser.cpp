@@ -5,9 +5,6 @@
 #include "EngineProcesser.h"
 #include "IEVProcessTask_c.h"
 
-int EngineProcesser::getMsgIndex() {
-    return 0;
-}
 
 void EngineProcesser::process() {
     elevoc_write_audio(evtask, mCurMsg->buff, mCurMsg->len);

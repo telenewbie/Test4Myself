@@ -30,7 +30,7 @@ public:
     virtual std::string getTag() = 0;
     void notify(DataMsg *);
 
-    virtual int getMsgIndex() = 0;
+//    virtual int getMsgIndex() = 0;
 
 
     virtual bool canProcess(DataMsg *);

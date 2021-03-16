@@ -11,8 +11,6 @@
 class FinalProcesser : public BaseProcesser {
 
 
-    int getMsgIndex() override;
-
     void process(DataMsg*) override;
     bool canProcess(DataMsg *) override;
 

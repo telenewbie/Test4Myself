@@ -12,7 +12,6 @@
 #include "DumpFileUtil.h"
 
 class ResampleOutProcesser : public BaseProcesser {
-    int getMsgIndex() override;
 
     void process(DataMsg *) override;
 

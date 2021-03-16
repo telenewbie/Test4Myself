@@ -63,10 +63,6 @@ std::string FrameSliceProcessor::getTag() {
     return "FrameSliceProcessor";
 }
 
-int FrameSliceProcessor::getMsgIndex() {
-    return 0;
-}
-
 bool FrameSliceProcessor::canProcess(DataMsg *) {
     return CHANNEL_MIC > 1;
 }

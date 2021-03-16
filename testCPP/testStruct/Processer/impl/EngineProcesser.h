@@ -10,8 +10,6 @@
 
 class EngineProcesser : public BaseProcesser {
 
-    int getMsgIndex() override;
-
     void process() override;
 
 public:

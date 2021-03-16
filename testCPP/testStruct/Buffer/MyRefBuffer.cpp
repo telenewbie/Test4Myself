@@ -13,7 +13,7 @@ MyRefBuffer *MyRefBuffer::getInstance() {
     return instance;
 }
 
-int MyRefBuffer::write(char *data, int len) {
+size_t MyRefBuffer::write(char *data, size_t len) {
     if (WriteSuccess == mInputBuffer.writeAudio(data, len)) {
         return len;
     } else {
@@ -21,12 +21,12 @@ int MyRefBuffer::write(char *data, int len) {
     }
 }
 
-int MyRefBuffer::read(char *data, int len) {
+size_t MyRefBuffer::read(char *data, size_t len) {
     size_t readlen = len;
     mInputBuffer.readAudioWithoutWait(data, &readlen);
     if(len != readlen){
         memset(data,0,len-readlen);
-        printf("read size not enough:[%d/%zu],Fill remaining capacity with 0!!!\n",len,readlen);
+        printf("read size not enough:[%zu/%zu],Fill remaining capacity with 0!!!\n",len,readlen);
     }
     return readlen;
 }

@@ -14,7 +14,6 @@
 
 class DnnProcesser : public BaseProcesser {
 
-    int getMsgIndex() override;
 
     void process(DataMsg*) override;
 

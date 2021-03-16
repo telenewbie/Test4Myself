@@ -8,7 +8,7 @@
 
 static size_t testCount = 0;
 
-int MyMicBuffer::write(char *data, int len) {
+size_t MyMicBuffer::write(char *data, size_t len) {
 #ifndef MINE
     mInputBuffer.writeAudio(data, len);
 #else
@@ -19,7 +19,7 @@ int MyMicBuffer::write(char *data, int len) {
     return len;
 }
 
-int MyMicBuffer::read(char *data, int len) {
+size_t MyMicBuffer::read(char *data, size_t len) {
 //    if (mReadIndex + len < mWriteIndex) {
 //        // 正常读取
 //    } else {

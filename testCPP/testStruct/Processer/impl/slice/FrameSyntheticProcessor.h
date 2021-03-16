@@ -23,7 +23,6 @@ public:
 
     std::string getTag() override;
 
-    int getMsgIndex() override;
 
     bool canProcess(DataMsg *) override;
 

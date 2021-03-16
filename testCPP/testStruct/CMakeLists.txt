@@ -18,6 +18,10 @@ set(AEC_FILES
         Processer/impl/aec/AECConfig.cpp
         Processer/impl/aec/AECConfig.h
         )
+if (WIN32)
+    #warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+    add_compile_options("/wd 4819")
+endif ()
 if (USE_ELE_WEBRTC)
     # 包含 aec 头文件
     include_directories(include/ele_aec)
@@ -33,9 +37,9 @@ if (USE_ELE_WEBRTC)
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/aec/x64/Debug/elevoc_teams_aec.lib
             )
-#    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-    if(WIN32)
+    #    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    #    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    if (WIN32)
         set(CompilerFlags
                 CMAKE_CXX_FLAGS
                 CMAKE_CXX_FLAGS_DEBUG
@@ -44,23 +48,10 @@ if (USE_ELE_WEBRTC)
                 CMAKE_C_FLAGS_DEBUG
                 CMAKE_C_FLAGS_RELEASE
                 )
-        foreach(CompilerFlag ${CompilerFlags})
+        foreach (CompilerFlag ${CompilerFlags})
             string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-        endforeach()
-    endif()
-#    message(STATUS ${CMAKE_CXX_FLAGS_DEBUG})
-#    add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
-#    add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
-#    set(WEBRTC_DEF NDEBUG
-#            ELEVOCNSENGINE_EXPORTS
-#            CURL_STATICLIB
-#            EVLIB_EXPORTS
-#            _CRT_SECURE_NO_WARNINGS
-#            _WINDOWS
-#            _USRDLL
-#            FLOATING_POINT
-#            OUTSIDE_SPEEX
-#            USE_SSE)
+        endforeach ()
+    endif ()
 
     set(WEBRTC_LIBS
             dsp
@@ -119,7 +110,7 @@ set(SLICE_SRC
 #######################################################################
 
 
-include_directories(. Buffer config dao Processer Processer/impl  utils)
+include_directories(. Buffer config dao Processer Processer/impl utils)
 
 if (USE_ENGINE)
     message(FATAL_ERROR 456)
@@ -150,7 +141,7 @@ else ()
             -DOUTSIDE_SPEEX
             -DFLOATING_POINT
             )
-    include_directories(include/dnn )
+    include_directories(include/dnn)
 
     set(EXT_SRC
             #Processer/impl/dnn/DnnProcesser.cpp
@@ -163,7 +154,6 @@ else ()
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/SingleChannelNSDNNPro.lib
             )
-
 
 
     add_library(myshared SHARED sharedlibrary.cpp)
@@ -209,8 +199,6 @@ set(SRC main.cpp ProcessCenter.cpp
         config/ElevocLog.h
         config/EVAssert.cpp
         config/EVAssert.h
-#        Processer/impl/FinalProcesser.cpp
-#        Processer/impl/FinalProcesser.h
         ${EXT_SRC}
         ${AEC_FILES}
         ${RESAMPLE_SRC}
@@ -218,7 +206,6 @@ set(SRC main.cpp ProcessCenter.cpp
         Processer/ProcessorConfig.cpp
         Processer/ProcessorConfig.h
         TEST_CONSTANT.h
-#        utils/EVPCMHelper.cpp
         utils/DumpFileUtil.cpp
         utils/DumpFileUtil.h
         )
@@ -231,24 +218,10 @@ target_compile_definitions(testStruct PUBLIC DNN_EVLIB_EXPORTS EVLIB_EXPORTS DEB
         _CRT_SECURE_NO_DEPRECATE
         )
 
-#target_compile_options(testStruct PUBLIC /MT)
-
-#set(CompilerFlags
-#        CMAKE_CXX_FLAGS
-#        CMAKE_CXX_FLAGS_DEBUG
-#        CMAKE_CXX_FLAGS_RELEASE
-#        CMAKE_C_FLAGS
-#        CMAKE_C_FLAGS_DEBUG
-#        CMAKE_C_FLAGS_RELEASE
-#        )
-#foreach (CompilerFlag ${CompilerFlags})
-#    string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-#endforeach ()
-
 if (WIN32)
     message(STATUS "is win32 ${CMAKE_BUILD_TYPE}")
 
 
-    target_compile_options(testStruct PRIVATE "/wd 4819")
+    #    target_compile_options(testStruct PRIVATE "/wd 4819")
     target_link_libraries(testStruct PRIVATE ${EXT_LIB})
 endif ()
